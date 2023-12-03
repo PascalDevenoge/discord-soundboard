@@ -4,14 +4,14 @@ import logging
 import mixer
 
 class SoundboardClient(discord.Client):
-  def __init__(self, mixer : mixer.SoundboardMixer):
+  def __init__(self, mixer : mixer.SoundboardMixer, config):
     intents = discord.Intents.default()
     intents.message_content = True
     super().__init__(intents=intents)
 
     self.audio_mixer = mixer
 
-    target_channel_name = os.getenv('DISCORD_SBRD_CHANNEL_NAME')
+    target_channel_name = config['voice-channel-name']
     if (target_channel_name == None):
       raise RuntimeError('No target voice channel name set')
     self.target_channel_name = target_channel_name

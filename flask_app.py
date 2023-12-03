@@ -14,7 +14,7 @@ def run_flask_app(cmd_queue : queue.Queue, rspns_queue : queue.Queue):
   command_queue = cmd_queue
   response_queue = rspns_queue
   app_thread = Thread(
-    target=lambda: app.run(debug=True, use_reloader=False)
+    target=lambda: app.run(debug=True, use_reloader=False, host='0.0.0.0', port=5123)
   )
   app_thread.start()
 
@@ -32,3 +32,13 @@ def get_tracks():
   command_queue.put(command.GetTracksCommand())
   tracks = response_queue.get()
   return {id: name for id, name in enumerate(tracks)}
+
+@app.route("/play/all")
+def play_all():
+  command_queue.put(command.RunAllCommand())
+  return Response('', 204)
+
+@app.route("/stop")
+def stop_tracks():
+  command_queue.put(command.StopAllCommand())
+  return Response('', 204)

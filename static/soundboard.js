@@ -16,4 +16,14 @@ tracks = fetch('tracks')
         fetch(`play/${id}`)
       }, false)
     }
+
+    let nuclear_button = document.getElementById('nuclear_option');
+    nuclear_button.addEventListener("click", () => {
+      fetch(`play/all`)
+    }, false)
+
+    let stop_button = document.getElementById('stop')
+    stop_button.addEventListener("click", () => {
+      fetch("stop")
+    })
   })

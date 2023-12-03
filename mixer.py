@@ -38,6 +38,10 @@ class SoundboardTrack():
     self.active = True
     self.next_frame = 0
 
+  def stop(self):
+    self.active = False
+    self.next_frame = self.num_frames
+
 class SoundboardMixer():
   def __init__(self, command_queue : queue.Queue, response_queue : queue.Queue):
     self.audio_source = None
@@ -60,6 +64,12 @@ class SoundboardMixer():
             track_names = [track.name for track in self.tracks]
             print(len(track_names))
             self.response_queue.put(track_names)
+          case command.CommandType.RUN_ALL:
+            for i in range(len(self.tracks)):
+              self.tracks[i].play()
+          case command.CommandType.STOP_ALL:
+            for i in range(len(self.tracks)):
+              self.tracks[i].stop()
           case _:
             print('Unknown command received')
       except queue.Empty as _:

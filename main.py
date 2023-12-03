@@ -24,9 +24,9 @@ response_queue = queue.Queue()
 audio_mixer = mixer.SoundboardMixer(command_queue, response_queue)
 for file in [file for file in os.listdir(config['tracks-path']) if file.endswith('.flac')]:
   audio, _ = librosa.load(f'{config["tracks-path"]}/{file}', sr=48000, mono=True)
-  audio = (audio * 2000).astype(np.int16)
+  audio = (audio * 5000).astype(np.int16)
   audio_mixer.registerTrack(mixer.SoundboardTrack(file, audio))
 
-discord_client = SoundboardClient(audio_mixer)
+discord_client = SoundboardClient(audio_mixer, config)
 run_flask_app(command_queue, response_queue)
 discord_client.run(TOKEN)
