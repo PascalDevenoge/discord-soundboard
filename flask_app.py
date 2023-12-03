@@ -1,22 +1,35 @@
 from flask import Flask, Response, send_file
-from threading import Thread
+from threading import Thread, Event
 import queue
 import command
+from flask_apscheduler import APScheduler
 
 app = Flask(__name__)
 app_thread = None
+scheduler = APScheduler()
 command_queue : queue.Queue = None
 response_queue : queue.Queue = None
+shutdown_event : Event
 
-def run_flask_app(cmd_queue : queue.Queue, rspns_queue : queue.Queue):
+def executor():
+  global scheduler
+  global app
+  scheduler.init_app(app)
+  scheduler.start()
+  app.run(debug=True, use_reloader=False, host='0.0.0.0', port=5123)
+
+def run_flask_app(cmd_queue : queue.Queue, rspns_queue : queue.Queue, shutdown_ev : Event):
   global command_queue
   global response_queue
+  global shutdown_event
   command_queue = cmd_queue
   response_queue = rspns_queue
+  shutdown_event = shutdown_ev
   app_thread = Thread(
-    target=lambda: app.run(debug=True, use_reloader=False, host='0.0.0.0', port=5123)
+    target=executor
   )
   app_thread.start()
+  return app_thread
 
 @app.route('/')
 def root_page():
@@ -42,3 +55,10 @@ def play_all():
 def stop_tracks():
   command_queue.put(command.StopAllCommand())
   return Response('', 204)
+
+# @scheduler.task('interval', id='shutdown_task', seconds=5)
+# def shutdown_task():
+#     if shutdown_event.is_set():
+#       print('Shutting down flask')
+#       scheduler.shutdown()
+#       raise KeyboardInterrupt

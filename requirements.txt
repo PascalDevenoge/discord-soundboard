@@ -2,3 +2,4 @@ discord.py[voice]
 flask
 librosa
 numpy
+Flask-APScheduler

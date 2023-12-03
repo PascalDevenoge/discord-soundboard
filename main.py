@@ -7,6 +7,7 @@ import numpy as np
 import librosa
 import argparse
 import tomllib
+from threading import Event
 
 parser = argparse.ArgumentParser()
 parser.add_argument("config_file", help="Path to the configuration file", type=argparse.FileType(mode='rb'))
@@ -21,6 +22,9 @@ if (TOKEN == None):
 command_queue = queue.Queue()
 response_queue = queue.Queue()
 
+shutdown_event = Event()
+flask_thread = None
+
 audio_mixer = mixer.SoundboardMixer(command_queue, response_queue)
 for file in [file for file in os.listdir(config['tracks-path']) if file.endswith('.flac')]:
   audio, _ = librosa.load(f'{config["tracks-path"]}/{file}', sr=48000, mono=True)
@@ -28,5 +32,11 @@ for file in [file for file in os.listdir(config['tracks-path']) if file.endswith
   audio_mixer.registerTrack(mixer.SoundboardTrack(file, audio))
 
 discord_client = SoundboardClient(audio_mixer, config)
-run_flask_app(command_queue, response_queue)
-discord_client.run(TOKEN)
+
+try:
+  flask_thread = run_flask_app(command_queue, response_queue, shutdown_event)
+  discord_client.run(TOKEN)
+except KeyboardInterrupt:
+  shutdown_event.set()
+  flask_thread.join()
+  raise KeyboardInterrupt
