@@ -1,4 +1,5 @@
 let soundContainer = document.getElementById("soundBites");
+let submitUpload = document.getElementById('submitUpload');
 
 tracks = fetch('tracks')
   .then(response => {
@@ -30,3 +31,8 @@ tracks = fetch('tracks')
       fetch("stop")
     })
   })
+
+submitUpload.addEventListener("click", (e) => {
+  e.preventDefault();
+  console.log("aaaaaaaaaaaaaaaaaaaa");
+});
