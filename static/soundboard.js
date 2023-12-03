@@ -1,3 +1,5 @@
+let soundContainer = document.getElementById("soundBites");
+
 tracks = fetch('tracks')
   .then(response => {
     if (!response.ok) {
