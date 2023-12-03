@@ -1,5 +1,22 @@
 let soundContainer = document.getElementById("soundBites");
 
+
+let button = document.createElement("button", {id: `_button`})
+let button2 = document.createElement("button", {id: `_button`})
+let button3 = document.createElement("button", {id: `_button`})
+button.innerText = "asdf"
+button2.innerText = "asdf"
+button3.innerText = "asdf"
+
+button.classList.add("list-group-item,list-group-item-action");
+button2.classList.add("list-group-item,list-group-item-action");
+button3.classList.add("list-group-item,list-group-item-action");
+
+soundContainer.appendChild(button);
+soundContainer.appendChild(button2);
+soundContainer.appendChild(button3)
+
+
 tracks = fetch('tracks')
   .then(response => {
     if (!response.ok) {
@@ -14,9 +31,7 @@ tracks = fetch('tracks')
       button.innerText = track_name
       button.classList.add("list-group-item,list-group-item-action");
 
-      soundContainer.appendChild(button)
-      soundContainer.appendChild(document.createElement("br"))
-
+      soundContainer.appendChild(button);
       button.addEventListener("click", () => {
         fetch(`play/${id}`)
       }, false)
