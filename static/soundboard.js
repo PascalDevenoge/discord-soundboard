@@ -10,8 +10,11 @@ tracks = fetch('tracks')
       let track_name = tracks[id];
       let button = document.createElement("button", {id: `${track_name}_button`})
       button.innerText = track_name
-      document.body.appendChild(button)
-      document.body.appendChild(document.createElement("br"))
+      button.classList.add("list-group-item,list-group-item-action");
+
+      soundContainer.appendChild(button)
+      soundContainer.appendChild(document.createElement("br"))
+
       button.addEventListener("click", () => {
         fetch(`play/${id}`)
       }, false)

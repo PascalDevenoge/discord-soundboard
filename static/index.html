@@ -8,13 +8,16 @@
 </head>
 
 <body>
-  <button id="nuclear_option" type="button">The nuclear option</button>
-  <br/>
-  <br/>
-  <button id="stop" type="button">Stop the insanity</button>
-  <br/>
-  <br/>
-  <script src="static/soundboard.js"></script>
+  <h1 id="title">The ultimate Soundboard</h1>
+  <div id="idontknowwhatcallthisdiv">
+    <button id="nuclear_option" type="button" class="btn btn-primary">The nuclear option</button>
+    <button id="stop" type="button" class="btn btn-danger">Stop the insanity</button>
+  </div>
+  <div id="soundBites" class="list-group"></div>
+
+  <script src="soundboard.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </body>
 
 </html>
