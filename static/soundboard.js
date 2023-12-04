@@ -2,7 +2,6 @@ let submitUpload = document.getElementById('submitUpload');
 let favorites = document.getElementById('favorites');
 let remainder = document.getElementById('remainder');
 let canSortButton = document.getElementById('isSortable');
-let openUploadDialog = document.getElementById('openUploadDialog');
 
 let isLocked = true;
 let favoritesArr = JSON.parse(localStorage.getItem('favoritesArr'));
