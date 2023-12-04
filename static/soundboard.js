@@ -7,6 +7,9 @@ let isLocked = true;
 let favoritesArr = JSON.parse(localStorage.getItem('favoritesArr'));
 let remainderArr = JSON.parse(localStorage.getItem('remainderArr'));
 
+favoritesArr = favoritesArr == null ? [] : favoritesArr;
+remainderArr = remainderArr == null ? [] : remainderArr;
+
 let favoritesSort = new Sortable(favorites, {
     group: 'shared',
     filter: '.title',
@@ -29,19 +32,23 @@ tracks = fetch('tracks')
         return response.json()
     })
     .then(tracks => {
+        console.log(tracks)
+
         for (let track of favoritesArr) {
-            let button = createButton(track);
+            let button = createButton(track, tracks[track]);
             favorites.appendChild(button);
         }
 
         for (let track of remainderArr) {
-            let button = createButton(track);
+            let button = createButton(track, tracks[track]);
             remainder.appendChild(button);
         }
 
-        let newTracks = tracks.filter(item => !favoritesArr.includes(item)).filter(item => !remainderArr.includes(item));
-        for (let track of newTracks) {
-            let button = createButton(track);
+        for (let track in tracks) {
+            if (favoritesArr.includes(track) || remainderArr.includes(track)) {
+                continue;
+            }
+            let button = createButton(track, tracks[track]);
             remainder.appendChild(button);
         }
 
@@ -56,13 +63,13 @@ tracks = fetch('tracks')
         })
     })
 
-function createButton(track) {
-    let button = document.createElement("a", {id: `${track}_button`});
-    button.innerText = track;
+function createButton(id, name) {
+    let button = document.createElement("a", {id: `${name}_button`});
+    button.innerText = name;
     button.classList.add("list-group-item", "list-group-item-action", "soundBite");
 
     button.addEventListener("click", () => {
-        fetch(`play/${track}`)
+        fetch(`play/${id}`)
     }, false);
     return button;
 }
