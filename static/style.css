@@ -5,19 +5,60 @@ body {
     justify-content: center;
 }
 
+#soundboard {
+    display: flex;
+    margin: 2rem 0;
+}
+
 #title {
     text-align: center;
 }
 
 #idontknowwhatcallthisdiv {
+    display: flex;
     text-align: center;
+    justify-content: space-evenly;
 }
 
-#soundBites {
-    margin-top: 10px;
+.stuff {
+    margin: 0 10px;
+}
+
+.soundBites {
+    margin: 0 2rem;
     width: 300px;
+    border: 2px darkgray;
+}
+
+.soundBite {
+    cursor: pointer;
 }
 
 #submitUpload {
     margin-top: 5px;
+}
+
+@media screen and (max-width: 1080px) {
+    #favorites, #remainder {
+        margin: 0 2rem;
+    }
+}
+
+@media screen and (max-width: 728px) {
+    #soundboard {
+        flex-direction: column;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    #idontknowwhatcallthisdiv {
+        width: 100%;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    #soundboard, #favorites, #remainder {
+        width: 98%;
+        margin: 0 1%;
+    }
 }
