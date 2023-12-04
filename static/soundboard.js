@@ -32,23 +32,23 @@ tracks = fetch('tracks')
         return response.json()
     })
     .then(tracks => {
-        console.log(tracks)
+        let tracksArr = Object.entries(tracks);
 
         for (let track of favoritesArr) {
-            let button = createButton(track, tracks[track]);
+            let button = createButton(tracksArr.indexOf(track), track);
             favorites.appendChild(button);
         }
 
         for (let track of remainderArr) {
-            let button = createButton(track, tracks[track]);
+            let button = createButton(tracksArr.indexOf(track), track);
             remainder.appendChild(button);
         }
 
-        for (let track in tracks) {
-            if (favoritesArr.includes(track) || remainderArr.includes(track)) {
+        for (let id in tracks) {
+            if (favoritesArr.includes(tracksArr[id]) || remainderArr.includes(tracksArr[id])) {
                 continue;
             }
-            let button = createButton(track, tracks[track]);
+            let button = createButton(id, tracks[id]);
             remainder.appendChild(button);
         }
 
