@@ -4,6 +4,7 @@ import command
 import numpy as np
 
 from typing import List
+import time
 
 FRAME_LENGTH = int(48000 * 0.02)
 
@@ -62,7 +63,6 @@ class SoundboardMixer():
             self.tracks[id].play()
           case command.CommandType.GET_TRACKS:
             track_names = [track.name for track in self.tracks]
-            print(len(track_names))
             self.response_queue.put(track_names)
           case command.CommandType.RUN_ALL:
             for i in range(len(self.tracks)):

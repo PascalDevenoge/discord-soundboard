@@ -46,7 +46,7 @@ class SoundboardClient(discord.Client):
       self.voice_client = await self.target_voice_channel.connect()
       self.voice_client.play(self.audio_mixer.get_audio_source())
       return
-
+    
   async def on_ready(self):
     print(f'Bot logged in as {self.user}')
     self._update_target_channel()
