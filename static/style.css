@@ -32,12 +32,12 @@ body {
 
 .soundBite {
     cursor: pointer;
+    user-select: none;
 }
 
 #submitUpload {
     margin-top: 5px;
 }
-
 
 @media screen and (min-width: 600px) { /* 500-1000 */
     #soundboard {
