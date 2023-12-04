@@ -38,19 +38,18 @@ body {
     margin-top: 5px;
 }
 
-@media screen and (max-width: 1080px) {
-    #favorites, #remainder {
-        margin: 0 2rem;
-    }
-}
 
-@media screen and (max-width: 728px) {
+@media screen and (min-width: 600px) { /* 500-1000 */
     #soundboard {
-        flex-direction: column;
+        flex-direction: row;
+    }
+
+    h2 {
+        text-align: center;
     }
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 600px) { /* 0-500 */
     #idontknowwhatcallthisdiv {
         width: 100%;
         flex-direction: column;
@@ -60,5 +59,9 @@ body {
     #soundboard, #favorites, #remainder {
         width: 98%;
         margin: 0 1%;
+    }
+
+    #soundboard {
+        flex-direction: column;
     }
 }
