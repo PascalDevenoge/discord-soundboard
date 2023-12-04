@@ -32,7 +32,7 @@ tracks = fetch('tracks')
         return response.json()
     })
     .then(tracks => {
-        let tracksArr = Object.entries(tracks);
+        let tracksArr = Object.values(tracks);
 
         for (let track of favoritesArr) {
             let button = createButton(tracksArr.indexOf(track), track);
