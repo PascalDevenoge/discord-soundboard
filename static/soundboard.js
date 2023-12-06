@@ -74,10 +74,12 @@ canSortButton.addEventListener("click", (e) => {
         canSortButton.textContent = "Lock Order";
         isLocked = false;
         favoritesSort.option('disabled', false);
+        remainderSort.option('disabled', false);
     } else {
         canSortButton.textContent = "Unlock Order";
         isLocked = true;
         favoritesSort.option('disabled', true);
+        remainderSort.option('disabled', true);
 
         let favoritesArr = [...favorites.children].filter(child => child.tagName === 'A').map(child => child.text);
         let keyArr = [];
