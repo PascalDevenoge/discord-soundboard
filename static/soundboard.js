@@ -32,20 +32,18 @@ tracks = fetch('tracks')
         return response.json()
     })
     .then(tracks => {
-        let tracksArr = Object.entries(tracks); // (uuid) string: string (name of effect)
-
         for (let track of favoritesArr) {
-            let button = createButton(tracksArr.find((key, value) => value === track), track);
+            let button = createButton(tracks.find((key, value) => value === track), track);
             favorites.appendChild(button);
         }
 
         for (let track of remainderArr) {
-            let button = createButton(tracksArr.find((key, value) => value === track), track);
+            let button = createButton(tracks.find((key, value) => value === track), track);
             remainder.appendChild(button);
         }
 
         for (let id in tracks) {
-            if (tracksArr.find((key, value) => value === id) || tracksArr.find((key, value) => value === id)) {
+            if (tracks.find((key, value) => value === id) || tracks.find((key, value) => value === id)) {
                 continue;
             }
             let button = createButton(id, tracks[id]);
