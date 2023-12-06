@@ -1,42 +1,57 @@
 import os
-from bot import SoundboardClient
-from flask_app import run_flask_app
-import queue
-import mixer
-import numpy as np
-import librosa
 import argparse
 import tomllib
-from threading import Event
+import bot
+import audio_mixer
+import web
+from multiprocessing import Event, Process, Queue
+from threading import Thread
+import queue
+from track_manager import TrackManager
 
-parser = argparse.ArgumentParser()
-parser.add_argument("config_file", help="Path to the configuration file", type=argparse.FileType(mode='rb'))
-args = parser.parse_args()
-config = tomllib.load(args.config_file)
-args.config_file.close()
+def main():
+  api_token, voice_channel_name, audio_dir_path = load_config()
 
-TOKEN = os.getenv('DISCORD_SBRD_TOKEN')
-if (TOKEN == None):
-  raise RuntimeError('No discord API token set')
+  track_manager = TrackManager(audio_dir_path)
 
-command_queue = queue.Queue()
-response_queue = queue.Queue()
+  audio_queue = Queue(maxsize=5)
+  command_queue = queue.Queue()
 
-shutdown_event = Event()
-flask_thread = None
+  audio_mixer_shutdown_event = Event()
+  audio_mixer_thread = Thread(
+      target=audio_mixer.audio_mixer_thread_main,
+      args=[audio_mixer_shutdown_event, command_queue, audio_queue, track_manager]
+  )
+  audio_mixer_thread.start()
 
-audio_mixer = mixer.SoundboardMixer(command_queue, response_queue)
-for file in [file for file in os.listdir(config['tracks-path']) if file.endswith('.flac')]:
-  audio, _ = librosa.load(f'{config["tracks-path"]}/{file}', sr=48000, mono=True)
-  audio = (audio * 5000).astype(np.int16)
-  audio_mixer.registerTrack(mixer.SoundboardTrack(file, audio))
+  bot_shutdown_event = Event()
+  bot_process = Process(
+    target=bot.bot_process_main, 
+    args=[bot_shutdown_event, audio_queue, api_token, voice_channel_name]
+  )
+  bot_process.start()
 
-discord_client = SoundboardClient(audio_mixer, config)
+  web.start_web_app(command_queue, track_manager)
+  print("Web app shutdown")
 
-try:
-  flask_thread = run_flask_app(command_queue, response_queue, shutdown_event)
-  discord_client.run(TOKEN)
-except KeyboardInterrupt:
-  shutdown_event.set()
-  flask_thread.join()
-  raise KeyboardInterrupt
+  bot_shutdown_event.set()
+  bot_process.join()
+
+  audio_mixer_shutdown_event.set()
+  audio_mixer_thread.join()
+
+def load_config():
+  api_token = os.getenv('DISCORD_SBRD_TOKEN')
+  if api_token == None:
+    raise RuntimeError("No discord API token set")
+  
+  argument_parser = argparse.ArgumentParser()
+  argument_parser.add_argument("config_file", help="Path to the configuration file", type=argparse.FileType(mode="rb"))
+  arguments = argument_parser.parse_args()
+  configuration = tomllib.load(arguments.config_file)
+  arguments.config_file.close()
+
+  return (api_token, configuration["voice-channel-name"], configuration["tracks-path"])
+
+if __name__ == "__main__":
+  main()
