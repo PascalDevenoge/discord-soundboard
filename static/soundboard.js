@@ -35,17 +35,17 @@ tracks = fetch('tracks')
         const tracksMap = new Map(Object.entries(tracks));
 
         for (let track of favoritesArr) {
-            let button = createButton(tracksMap.find((key, value) => value === track), track);
+            let button = createButton(Object.keys(tracks).find(key => tracks[key] === track), track);
             favorites.appendChild(button);
         }
 
         for (let track of remainderArr) {
-            let button = createButton(tracksMap.find((key, value) => value === track), track);
+            let button = createButton(Object.keys(tracks).find(key => tracks[key] === track), track);
             remainder.appendChild(button);
         }
 
         for (let id in tracks) {
-            if (tracksMap.find((key, value) => value === id) || tracksMap.find((key, value) => value === id)) {
+            if (Object.keys(tracks).find(key => tracks[key] === id) || Object.keys(tracks).find(key => tracks[key] === id)) {
                 continue;
             }
             let button = createButton(id, tracks[id]);
