@@ -34,7 +34,7 @@ tracks = fetch('tracks')
         tracksObject = tracks;
 
         for (let track of favoritesArr) {
-            let button = createButton(track, Object.keys(tracks).find(key => tracks[key] === tracks[track]));
+            let button = createButton(tracks[key], Object.keys(tracks).find(key => tracks[key] === tracks[track]));
             favorites.appendChild(button);
         }
 
