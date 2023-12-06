@@ -74,11 +74,6 @@ function createButton(id, name) {
     return button;
 }
 
-submitUpload.addEventListener("click", (e) => {
-    e.preventDefault();
-    console.log("aaaaaaaaaaaaaaaaaaaa");
-});
-
 canSortButton.addEventListener("click", (e) => {
     e.preventDefault();
     if (isLocked) {
@@ -103,8 +98,3 @@ canSortButton.addEventListener("click", (e) => {
         localStorage.setItem('remainderArr', JSON.stringify(remainderArr));
     }
 });
-
-openUploadDialog.addEventListener("click", (e) => {
-    e.preventDefault();
-
-})

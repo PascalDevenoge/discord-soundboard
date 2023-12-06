@@ -31,7 +31,7 @@ def main():
   )
   bot_process.start()
 
-  web.start_web_app(command_queue, track_manager)
+  web.start_web_app(command_queue, track_manager, audio_dir_path)
   print("Web app shutdown")
 
   bot_shutdown_event.set()
