@@ -55,10 +55,3 @@ def play_all():
 def stop_tracks():
   command_queue.put(command.StopAllCommand())
   return Response('', 204)
-
-# @scheduler.task('interval', id='shutdown_task', seconds=5)
-# def shutdown_task():
-#     if shutdown_event.is_set():
-#       print('Shutting down flask')
-#       scheduler.shutdown()
-#       raise KeyboardInterrupt
