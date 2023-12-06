@@ -84,7 +84,7 @@ canSortButton.addEventListener("click", (e) => {
         let favoritesArr = [...favorites.children].filter(child => child.tagName === 'A').map(child => child.text);
         let keyArr = [];
         for (let favorite of favoritesArr) {
-            let key = Object.keys(tracks).find(key => tracks[key] === favorite);
+            let key = Object.keys(tracksObject).find(key => tracksObject[key] === favorite);
             keyArr.push(key);
         }
 
