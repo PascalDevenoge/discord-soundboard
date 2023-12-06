@@ -45,7 +45,7 @@ tracks = fetch('tracks')
         }
 
         for (let id in tracks) {
-            if (favoritesArr.includes(tracks[id]) || favoritesArr.includes(tracks[id])) {
+            if (favoritesArr.includes(tracks[id]) || remainderArr.includes(tracks[id])) {
                 continue;
             }
             let button = createButton(id, tracks[id]);
