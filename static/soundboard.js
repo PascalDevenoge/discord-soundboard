@@ -5,10 +5,9 @@ let canSortButton = document.getElementById('isSortable');
 
 let isLocked = true;
 let favoritesArr = JSON.parse(localStorage.getItem('favoritesArr'));
-let remainderArr = JSON.parse(localStorage.getItem('remainderArr'));
+let tracksObject = null;
 
 favoritesArr = favoritesArr == null ? [] : favoritesArr;
-remainderArr = remainderArr == null ? [] : remainderArr;
 
 let favoritesSort = new Sortable(favorites, {
     group: 'shared',
@@ -32,20 +31,15 @@ tracks = fetch('tracks')
         return response.json()
     })
     .then(tracks => {
-        const tracksMap = new Map(Object.entries(tracks));
+        tracksObject = tracks;
 
         for (let track of favoritesArr) {
             let button = createButton(Object.keys(tracks).find(key => tracks[key] === track), track);
             favorites.appendChild(button);
         }
 
-        for (let track of remainderArr) {
-            let button = createButton(Object.keys(tracks).find(key => tracks[key] === track), track);
-            remainder.appendChild(button);
-        }
-
         for (let id in tracks) {
-            if (favoritesArr.includes(tracks[id]) || remainderArr.includes(tracks[id])) {
+            if (favoritesArr.includes(tracks[id])) {
                 continue;
             }
             let button = createButton(id, tracks[id]);
@@ -79,22 +73,19 @@ canSortButton.addEventListener("click", (e) => {
     if (isLocked) {
         canSortButton.textContent = "Lock Order";
         isLocked = false;
-
         favoritesSort.option('disabled', false);
-        remainderSort.option('disabled', false);
     } else {
         canSortButton.textContent = "Unlock Order";
         isLocked = true;
-
         favoritesSort.option('disabled', true);
-        remainderSort.option('disabled', true);
-
-        console.log(favoritesSort.options);
 
         let favoritesArr = [...favorites.children].filter(child => child.tagName === 'A').map(child => child.text);
-        let remainderArr = [...remainder.children].filter(child => child.tagName === 'A').map(child => child.text);
+        let keyArr = [];
+        for (let favorite of favoritesArr) {
+            let key = Object.keys(tracks).find(key => tracks[key] === favorite);
+            keyArr.push(key);
+        }
 
-        localStorage.setItem('favoritesArr', JSON.stringify(favoritesArr));
-        localStorage.setItem('remainderArr', JSON.stringify(remainderArr));
+        localStorage.setItem('favoritesArr', JSON.stringify(keyArr));
     }
 });
