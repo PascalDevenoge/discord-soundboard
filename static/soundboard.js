@@ -39,7 +39,7 @@ tracks = fetch('tracks')
         }
 
         for (let id in tracks) {
-            if (favoritesArr.includes(tracks[id])) {
+            if (favoritesArr.includes(id)) {
                 continue;
             }
             let button = createButton(id, tracks[id]);
