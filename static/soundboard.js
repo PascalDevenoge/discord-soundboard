@@ -45,7 +45,7 @@ tracks = fetch('tracks')
         }
 
         for (let id in tracks) {
-            if (Object.keys(tracks).find(key => tracks[key] === id) || Object.keys(tracks).find(key => tracks[key] === id)) {
+            if (Object.keys(tracks).find(key => tracks[key] === tracks[id]) || Object.keys(tracks).find(key => tracks[key] === tracks[id])) {
                 continue;
             }
             let button = createButton(id, tracks[id]);
