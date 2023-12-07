@@ -2,8 +2,8 @@ name: Docker image build 2
 
 on:
   push:
-    tags:
-      - v*
+    branches:
+      - main
 
 env:
   IMAGE_NAME: ${{ github.repository }}
@@ -19,17 +19,9 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-
-      - name: Login to container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build image and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/amd64
-          tags: PascalDevenoge/discord-soundboard:latest
+      - name: Docker login
+        run: docker login --username pascaldevenoge --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
+      - name: Build
+        run: docker build . --tag ghcr.io/pascaldevenoge/discord-soundboard:latest -f Dockerfile
+      - name: Publish
+        run: docker push ghcr.io/pascaldevenoge/discord-soundboard:latest
