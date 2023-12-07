@@ -60,7 +60,7 @@ function createButton(id, name) {
     button.setAttribute("data-uuid", id);
 
     button.addEventListener("click", () => {
-        fetch(`play/${id}`)
+        fetch(`play/${id}/1.0`)
     }, false);
     return button;
 }

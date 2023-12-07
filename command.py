@@ -1,10 +1,11 @@
 from abc import ABC
 from enum import Enum
+from uuid import UUID
 
 class CommandType(Enum):
-  RUN_SAMPLE = 1,
+  PLAY_SAMPLE = 1,
   GET_TRACKS = 2,
-  RUN_ALL = 3,
+  PLAY_ALL = 3,
   STOP_ALL = 4,
 
 class Command(ABC):
@@ -12,9 +13,10 @@ class Command(ABC):
     self.type = command_type
 
 class RunSampleCommand(Command):
-  def __init__(self, id):
-    super().__init__(CommandType.RUN_SAMPLE)
+  def __init__(self, id : UUID, volume : float):
+    super().__init__(CommandType.PLAY_SAMPLE)
     self.id = id
+    self.volume = volume
 
 class GetTracksCommand(Command):
   def __init__(self):
@@ -22,7 +24,7 @@ class GetTracksCommand(Command):
 
 class RunAllCommand(Command):
   def __init__(self):
-    super().__init__(CommandType.RUN_ALL)
+    super().__init__(CommandType.PLAY_ALL)
 
 class StopAllCommand(Command):
   def __init__(self):

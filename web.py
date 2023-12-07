@@ -14,13 +14,16 @@ def start_web_app(command_queue : Queue, track_manager : TrackManager, audio_dir
   def root_page():
     return send_file('./static/index.html', mimetype='text/html')
   
-  @app.route('/play/<string:uuid>')
-  def play_sample(uuid : str):
+  @app.route('/play/<string:uuid>/<float:volume>')
+  def play_sample(uuid : str, volume : float):
     id = UUID(uuid)
     if not track_manager.track_exists(id):
-      return Response('', 400)
+      return Response(f'Track {uuid} does not exist', 404)
+    
+    if volume < 0.0 or volume > 10.0:
+      return Response(f'Volume {volume} is out of range', 400)
 
-    command_queue.put(RunSampleCommand(UUID(uuid)))
+    command_queue.put(RunSampleCommand(UUID(uuid), volume))
     return Response('', 204)
   
   @app.route('/play/all')
