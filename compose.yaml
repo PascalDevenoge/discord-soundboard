@@ -1,5 +1,6 @@
 services:
   bot:
+    container_name: discord-soundboard-bot
     image: ghcr.io/PascalDevenoge/discord-soundboard-bot:latest
     build:
       context: .
