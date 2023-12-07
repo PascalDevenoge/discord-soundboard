@@ -32,4 +32,4 @@ jobs:
         with:
           context: .
           platforms: linux/amd64
-          tags: ghcr.io/pascaldevenoge/discord-soundboard:${{ github.ref_name }}
+          tags: PascalDevenoge/discord-soundboard:latest
