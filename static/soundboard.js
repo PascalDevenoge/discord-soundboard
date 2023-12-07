@@ -3,8 +3,10 @@ let remainder = document.getElementById('remainder');
 let canSortButton = document.getElementById('isSortable');
 let nuclear_button = document.getElementById('nuclear_option');
 let stop_button = document.getElementById('stop')
+let volumeList = document.getElementById('volumeList')
 
 let favoritesArr = JSON.parse(localStorage.getItem('favoritesArr')) ?? [];
+let volumeConfig = JSON.parse(localStorage.getItem('volumeConfig')) ?? [];
 let tracksObject = null;
 
 let favoritesSort = new Sortable(favorites, {
@@ -51,7 +53,27 @@ tracks = fetch('tracks')
         stop_button.addEventListener("click", () => {
             fetch("stop")
         })
-    })
+    }).then(() => {
+        for (let [uuid, name] of Object.entries(tracksObject)) {
+            let listItem = document.createElement("li");
+            listItem.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+            listItem.textContent = name;
+
+            let slider = document.createElement("input");
+            slider.type = "range";
+            slider.classList.add("slider");
+            slider.setAttribute("data-uuid", uuid);
+            listItem.appendChild(slider);
+            volumeConfig.appendChild(listItem);
+
+            slider.addEventListener("change", (e) => {
+                let trackUUID = e.target.getAttribute("data-uuid");
+                let volume = e.target.value;
+                volumeConfig[trackUUID] = volume;
+                localStorage.setItem('volumeConfig', JSON.stringify(volumeConfig));
+            });
+        }
+    });
 
 function createButton(id, name) {
     const button = document.createElement("a", {id: `${name}_button`});
@@ -59,8 +81,10 @@ function createButton(id, name) {
     button.classList.add("list-group-item", "list-group-item-action", "soundBite");
     button.setAttribute("data-uuid", id);
 
-    button.addEventListener("click", () => {
-        fetch(`play/${id}/1.0`)
+    button.addEventListener("click", (e) => {
+        let trackUUID = e.target.getAttribute("data-uuid");
+        let volume = volumeConfig[trackUUID] ?? 1.0;
+        fetch(`play/${id}/${volume}`);
     }, false);
     return button;
 }
