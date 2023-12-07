@@ -1,13 +1,11 @@
-let submitUpload = document.getElementById('submitUpload');
 let favorites = document.getElementById('favorites');
 let remainder = document.getElementById('remainder');
 let canSortButton = document.getElementById('isSortable');
+let nuclear_button = document.getElementById('nuclear_option');
+let stop_button = document.getElementById('stop')
 
-let isLocked = true;
-let favoritesArr = JSON.parse(localStorage.getItem('favoritesArr'));
+let favoritesArr = JSON.parse(localStorage.getItem('favoritesArr')) ?? [];
 let tracksObject = null;
-
-favoritesArr = favoritesArr == null ? [] : favoritesArr;
 
 let favoritesSort = new Sortable(favorites, {
     group: 'shared',
@@ -30,37 +28,36 @@ tracks = fetch('tracks')
         }
         return response.json()
     })
-    .then(tracks => {
-        tracksObject = tracks;
+    .then(tracksResponse => {
+        tracksObject = tracksResponse;
 
-        for (let track of favoritesArr) {
-            let button = createButton(Object.keys(tracks).find(key => tracks[key] === tracks[track]), tracks[track]);
+        for (let favUUID of favoritesArr) {
+            const trackUUID = Object.keys(tracksResponse).find(uuid => tracksResponse[uuid] === tracksResponse[favUUID]);
+            const button = createButton(trackUUID, tracksResponse[favUUID]);
             favorites.appendChild(button);
         }
 
-        for (let id in tracks) {
-            if (favoritesArr.includes(id)) {
-                continue;
+        for (let id in tracksResponse) {
+            if (!favoritesArr.includes(id)) {
+                const button = createButton(id, tracksResponse[id]);
+                remainder.appendChild(button);
             }
-            let button = createButton(id, tracks[id]);
-            remainder.appendChild(button);
         }
 
-        let nuclear_button = document.getElementById('nuclear_option');
         nuclear_button.addEventListener("click", () => {
             fetch(`play/all`)
         }, false)
 
-        let stop_button = document.getElementById('stop')
         stop_button.addEventListener("click", () => {
             fetch("stop")
         })
     })
 
 function createButton(id, name) {
-    let button = document.createElement("a", {id: `${name}_button`});
+    const button = document.createElement("a", {id: `${name}_button`});
     button.innerText = name;
     button.classList.add("list-group-item", "list-group-item-action", "soundBite");
+    button.setAttribute("data-uuid", id);
 
     button.addEventListener("click", () => {
         fetch(`play/${id}`)
@@ -70,24 +67,17 @@ function createButton(id, name) {
 
 canSortButton.addEventListener("click", (e) => {
     e.preventDefault();
-    if (isLocked) {
+    if (favoritesSort.options.disabled) {
         canSortButton.textContent = "Lock Order";
-        isLocked = false;
         favoritesSort.option('disabled', false);
         remainderSort.option('disabled', false);
     } else {
         canSortButton.textContent = "Unlock Order";
-        isLocked = true;
         favoritesSort.option('disabled', true);
         remainderSort.option('disabled', true);
 
-        let favoritesArr = [...favorites.children].filter(child => child.tagName === 'A').map(child => child.text);
-        let keyArr = [];
-        for (let favorite of favoritesArr) {
-            let key = Object.keys(tracksObject).find(key => tracksObject[key] === favorite);
-            keyArr.push(key);
-        }
-
-        localStorage.setItem('favoritesArr', JSON.stringify(keyArr));
+        let favOrder = [...favorites.children].filter(child => child.tagName === 'A')
+            .map(child => child.getAttribute('data-uuid'));
+        localStorage.setItem('favoritesArr', JSON.stringify(favOrder));
     }
 });
