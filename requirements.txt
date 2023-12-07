@@ -1,5 +1,5 @@
-discord.py[voice]
-flask
-librosa
-numpy
-Flask-APScheduler
+discord.py[voice] == 2.3.2
+flask == 3.0.0
+librosa == 0.10.1
+numpy == 1.26.2
+Flask-APScheduler == 1.13.1
