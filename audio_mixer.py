@@ -7,11 +7,7 @@ from command import *
 from track_manager import TrackManager, FRAME_LENGTH
 from uuid import UUID
 
-NUM_CHANNELS = 20
-
-_channels : List[Tuple[bool, UUID, int, float]] = [(False, None, 0, 0.0)] * NUM_CHANNELS
-
-def _pick_channel():
+def _pick_channel(_channels : List[Tuple[bool, UUID, int, float]]):
   longest_played_channel = 0
   longest_played_frame_num = 0
   for i, (active, _, next_frame, _) in enumerate(_channels):
@@ -20,12 +16,14 @@ def _pick_channel():
       longest_played_channel = i
     if not active:
       return i
+  print("No inactive channel found")
   return longest_played_channel
     
-def audio_mixer_thread_main(shutdown_event : Event, command_queue : queue.Queue, audio_queue : Queue, track_manager : TrackManager):
+def audio_mixer_thread_main(shutdown_event : Event, command_queue : queue.Queue, audio_queue : Queue, num_mixer_channels : int, track_manager : TrackManager):
+  _channels : List[Tuple[bool, UUID, int, float]] = [(False, None, 0, 0.0)] * num_mixer_channels
+
   while True:
     if shutdown_event.is_set():
-      print("Audio mixer shutdown")
       return
     
     while True:
@@ -33,7 +31,7 @@ def audio_mixer_thread_main(shutdown_event : Event, command_queue : queue.Queue,
         cmd : Command = command_queue.get_nowait()
         match cmd.type:
           case CommandType.PLAY_SAMPLE:
-            _channels[_pick_channel()] = (True, cmd.id, 0, cmd.volume)
+            _channels[_pick_channel(_channels)] = (True, cmd.id, 0, cmd.volume)
           case CommandType.PLAY_ALL:
             for uuid, channel_id in zip(track_manager.get_track_ids(), range(len(_channels))):
               _channels[channel_id] = (True, uuid, 0, 1.0)

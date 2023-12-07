@@ -11,7 +11,6 @@ def bot_process_main(shutdown_event : Event,
     audio_queue, 
     voice_channel_name
   ).run(api_token)
-  print("Bot shutdown")
 
 class SoundboardBotClient(discord.Client):
   def __init__(self, shutdown_event : Event, audio_queue : Queue, voice_channel_name : str):
@@ -59,6 +58,8 @@ class SoundboardBotClient(discord.Client):
   async def on_ready(self):
     print("Bot starting up")
     await self._join_leave()
+    self.stream_replay_task.start()
+    self.shutdown_task.start()
 
   async def on_voice_state_update(self, member, _, __):
     if member == self.user:
@@ -68,6 +69,11 @@ class SoundboardBotClient(discord.Client):
   @tasks.loop(seconds=1)
   async def stream_replay_task(self):
     await self._join_leave()
+
+  @tasks.loop(seconds=1)
+  async def shutdown_task(self):
+    if self.shutdown_event.is_set():
+      raise KeyboardInterrupt
 
 class SoundboardStreamAudioSource(discord.AudioSource):
   def __init__(self, audio_queue : Queue):

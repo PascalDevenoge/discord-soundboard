@@ -1,2 +1,3 @@
 tracks-path = "./tracks"
 voice-channel-name = "The Lounge"
+num-mixer-channels = 20
