@@ -83,7 +83,7 @@ function createButton(id, name) {
 
     button.addEventListener("click", (e) => {
         let trackUUID = e.target.getAttribute("data-uuid");
-        let volume = volumeConfig[trackUUID] ?? 1.0;
+        let volume = volumeConfig[trackUUID] ?? "1.0";
         fetch(`play/${id}/${volume}`);
     }, false);
     return button;
