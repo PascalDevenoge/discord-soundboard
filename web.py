@@ -3,7 +3,7 @@ from flask import Flask, Response, send_file, request, redirect
 from command import *
 from track_manager import TrackManager
 from uuid import UUID, uuid4
-import os
+import numpy as np
 import librosa
 import pathlib
 
@@ -16,6 +16,10 @@ def start_web_app(command_queue : Queue, track_manager : TrackManager, audio_dir
   
   @app.route('/play/<string:uuid>')
   def play_sample(uuid : str):
+    id = UUID(uuid)
+    if not track_manager.track_exists(id):
+      return Response('', 400)
+
     command_queue.put(RunSampleCommand(UUID(uuid)))
     return Response('', 204)
   
@@ -47,7 +51,7 @@ def start_web_app(command_queue : Queue, track_manager : TrackManager, audio_dir
     filepath = pathlib.Path(audio_dir_path) / (str(uuid) + file.filename)
     file.save(filepath)
     audio, _ = librosa.load(filepath, sr=48000, mono=True)
-    track_manager.add_track(uuid, file.filename, audio)
+    track_manager.add_track(uuid, file.filename[0 : -5], audio)
     return redirect("/")
 
   app.run(host='0.0.0.0', port=5123, threaded=True)

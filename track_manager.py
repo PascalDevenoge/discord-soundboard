@@ -54,3 +54,7 @@ class TrackManager():
       if frame_num >= track[1]:
         raise ValueError(f"Frame index {frame_num} out of bounds for track {str(uuid)}: {track[0]}")
       return track[2][frame_num]
+    
+  def track_exists(self, uuid : UUID) -> bool:
+    with self.lock:
+      return uuid in self.tracks
