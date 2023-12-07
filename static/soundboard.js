@@ -64,7 +64,7 @@ tracks = fetch('tracks')
             slider.classList.add("slider");
             slider.setAttribute("data-uuid", uuid);
             listItem.appendChild(slider);
-            volumeConfig.appendChild(listItem);
+            volumeList.appendChild(listItem);
 
             slider.addEventListener("change", (e) => {
                 let trackUUID = e.target.getAttribute("data-uuid");
