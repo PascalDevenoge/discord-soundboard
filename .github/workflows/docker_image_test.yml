@@ -33,5 +33,3 @@ jobs:
           context: .
           platforms: linux/amd64
           tags: ghcr.io/pascaldevenoge/discord-soundboard:${{ github.ref_name }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
