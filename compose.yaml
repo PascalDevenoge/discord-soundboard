@@ -16,3 +16,4 @@ services:
         target: /app/tracks
     stop_signal: SIGINT
     init: true
+    restart: always

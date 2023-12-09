@@ -28,7 +28,7 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-RUN apt update && apt install -y libopus0 cmake gfortran
+RUN apt update && apt install -y libopus0 cmake gfortran libsndfile1
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
