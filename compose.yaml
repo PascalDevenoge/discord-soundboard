@@ -14,6 +14,7 @@ services:
       - type: bind
         source: ./tracks
         target: /app/tracks
+
     stop_signal: SIGINT
     init: true
     restart: always

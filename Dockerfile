@@ -5,7 +5,7 @@
 # https://docs.docker.com/go/dockerfile-reference/
 
 ARG PYTHON_VERSION=3.11.7
-FROM python:${PYTHON_VERSION} as base
+FROM python:${PYTHON_VERSION}-slim as base
 
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -18,7 +18,7 @@ WORKDIR /app
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
-ARG UID=10001
+ARG UID=1000
 RUN adduser \
     --disabled-password \
     --gecos "" \
@@ -28,7 +28,7 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-RUN apt update && apt install -y libopus0 cmake gfortran libsndfile1
+RUN apt update && apt install -y libopus0 libsndfile1
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.

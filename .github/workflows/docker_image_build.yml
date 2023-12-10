@@ -37,7 +37,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64,linux/arm/v7
-          tags: ghcr.io/pascaldevenoge/discord-soundboard:${{ github.ref_name }}
+          platforms: linux/amd64,linux/arm64v8
+          tags: pascaldevenoge/discord-soundboard:${{ github.ref_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
