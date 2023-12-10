@@ -4,8 +4,8 @@
 # If you need more help, visit the Dockerfile reference guide at
 # https://docs.docker.com/go/dockerfile-reference/
 
-ARG PYTHON_VERSION=3.11.7
-FROM python:${PYTHON_VERSION}-slim as base
+ARG PYTHON_VERSION=3.11
+FROM python:${PYTHON_VERSION} as base
 
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
