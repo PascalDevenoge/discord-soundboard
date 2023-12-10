@@ -2,9 +2,6 @@ services:
   bot:
     container_name: discord-soundboard-bot
     image: ghcr.io/pascaldevenoge/discord-soundboard:latest
-    build:
-      context: .
-      dockerfile: ./Dockerfile
     ports:
       - 5123:5123
     environment:
@@ -12,7 +9,7 @@ services:
       - NUMBA_CACHE_DIR=/tmp
     volumes:
       - type: bind
-        source: ./tracks
+        source: ${DISCORD_SBRD_TRACKS_DIR}
         target: /app/tracks
 
     stop_signal: SIGINT
