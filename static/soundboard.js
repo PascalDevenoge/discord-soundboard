@@ -76,17 +76,20 @@ tracks = fetch('tracks')
     });
 
 function createButton(id, name) {
-    const button = document.createElement("a", {id: `${name}_button`});
-    button.innerText = name;
-    button.classList.add("list-group-item", "list-group-item-action", "soundBite");
-    button.setAttribute("data-uuid", id);
+    const soundBite = document.createElement("div");
+    const img = document.createElement("img");
+    img.src = "https://w7.pngwing.com/pngs/520/690/png-transparent-red-among-us-cartoons-among-us.png";
+    soundBite.classList.add("soundBite");
+    soundBite.appendChild(img);
+    soundBite.innerText = name;
+    soundBite.setAttribute("data-uuid", id);
 
-    button.addEventListener("click", (e) => {
+    soundBite.addEventListener("click", (e) => {
         let trackUUID = e.target.getAttribute("data-uuid");
         let volume = volumeConfig[trackUUID] ?? "1.0";
         fetch(`play/${id}/${volume}`);
     }, false);
-    return button;
+    return soundBite;
 }
 
 canSortButton.addEventListener("click", (e) => {
@@ -100,7 +103,7 @@ canSortButton.addEventListener("click", (e) => {
         favoritesSort.option('disabled', true);
         remainderSort.option('disabled', true);
 
-        let favOrder = [...favorites.children].filter(child => child.tagName === 'A')
+        let favOrder = [...favorites.children].filter(child => child.tagName === 'DIV')
             .map(child => child.getAttribute('data-uuid'));
         localStorage.setItem('favoritesArr', JSON.stringify(favOrder));
     }

@@ -5,38 +5,60 @@ body {
     justify-content: center;
 }
 
+h1, h2 {
+    text-align: center;
+}
+
 #soundboard {
     display: flex;
-    margin: 2rem 0;
+    justify-content: space-between;
 }
 
-#title {
-    text-align: center;
+.soundContainer {
+    flex-grow: 1;
+    width: 50%;
 }
 
-#idontknowwhatcallthisdiv {
+#favorites, #remainder {
+    flex-grow: 1;
     display: flex;
-    text-align: center;
-    justify-content: space-evenly;
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex-basis: 0;
+}
+
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
 }
 
 .stuff {
     margin: 0 10px;
 }
 
-.soundBites {
-    margin: 0 2rem;
-    width: 300px;
-    border: 2px darkgray;
-}
-
 .soundBite {
+    width: 175px;
+    height: 175px;
+    margin: 5px;
+    background-color: lightgray;
+
     cursor: pointer;
     user-select: none;
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
 }
 
-#submitUpload {
-    margin-top: 5px;
+#idontknowwhatcallthisdiv {
+    display: flex;
+    text-align: center;
+    justify-content: space-evenly;
 }
 
 @media screen and (min-width: 600px) { /* 500-1000 */
