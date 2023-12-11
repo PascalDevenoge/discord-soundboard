@@ -42,8 +42,15 @@ class SoundboardBotClient(discord.Client):
           return
         else:
           # Activate audio stream
-          self.audio_client = await self.voice_channel.connect()
-          self.audio_client.play(SoundboardStreamAudioSource(self.audio_stream))
+
+          # FIXME: Something, the client attempts to connect to the same channel again while already joined
+          try:
+            self.audio_client = await self.voice_channel.connect()
+          except discord.ClientException as e:
+            log.error(f"Failed to connect to voice channel: {e.args[0]}")
+          else:
+            self.audio_client.play(SoundboardStreamAudioSource(self.audio_stream))
+
     else:
       # Connected to channel
       if len(self.voice_channel.members) == 1:
