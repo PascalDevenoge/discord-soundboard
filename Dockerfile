@@ -19,13 +19,19 @@ WORKDIR /app
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
 ARG UID=1000
-RUN adduser \
+ARG GID=1003
+RUN addgroup \
+    --gid "${GID}" \
+    appuser \
+    && \
+    adduser \
     --disabled-password \
     --gecos "" \
     --home "/nonexistent" \
     --shell "/sbin/nologin" \
     --no-create-home \
     --uid "${UID}" \
+    --gid "${GID}" \
     appuser
 
 RUN apt update && apt install -y libopus0 ffmpeg

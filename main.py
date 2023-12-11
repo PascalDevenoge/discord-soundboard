@@ -9,8 +9,14 @@ from threading import Thread
 import queue
 from track_manager import TrackManager
 import atexit
+import logging
+import logger
+
+log = logging.getLogger('main')
 
 def main():
+  logger.setup()
+
   api_token, voice_channel_name, audio_dir_path, num_mixer_channels = load_config()
 
   track_manager = TrackManager(audio_dir_path)
@@ -38,13 +44,13 @@ def main():
   def shutdown_handler():
     bot_shutdown_event.set()
     bot_process.join()
-    print("Bot shutdown")
+    log.info("Bot shutdown")
     audio_mixer_shutdown_event.set()
     audio_mixer_thread.join()
-    print("Audio mixer shutdown")
+    log.info("Audio mixer shutdown")
 
   web.start_web_app(command_queue, track_manager, audio_dir_path)
-  print("Web app shutdown")
+  log.info("Web app shutdown")
 
 def load_config():
   api_token = os.getenv('DISCORD_SBRD_TOKEN')
@@ -61,10 +67,10 @@ def load_config():
   samples_files_path = configuration["tracks-path"]
   num_mixer_channels = configuration["num-mixer-channels"]
 
-  print("Config loaded:")
-  print(f"Target voice channel name:      {voice_channel_name}")
-  print(f"Samples audio file path:        {samples_files_path}")
-  print(f"Number of audio mixer channels: {num_mixer_channels}")
+  log.info("Config loaded:")
+  log.info(f"Target voice channel name:      {voice_channel_name}")
+  log.info(f"Samples audio file path:        {samples_files_path}")
+  log.info(f"Number of audio mixer channels: {num_mixer_channels}")
 
   return (api_token, voice_channel_name, samples_files_path, num_mixer_channels)
 

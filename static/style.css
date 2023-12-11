@@ -55,7 +55,7 @@ img {
     justify-content: flex-end;
 }
 
-#idontknowwhatcallthisdiv {
+#headerControls {
     display: flex;
     text-align: center;
     justify-content: space-evenly;
@@ -72,7 +72,7 @@ img {
 }
 
 @media screen and (max-width: 600px) { /* 0-500 */
-    #idontknowwhatcallthisdiv {
+    #headerControls {
         width: 100%;
         flex-direction: column;
         flex-grow: 1;
@@ -86,4 +86,8 @@ img {
     #soundboard {
         flex-direction: column;
     }
+}
+
+#messageContainer {
+    margin-top: 10px;
 }

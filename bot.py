@@ -1,6 +1,9 @@
 import discord
 from discord.ext import tasks
 from multiprocessing import Event, Queue
+import logging
+
+log = logging.getLogger('discord bot')
 
 def bot_process_main(shutdown_event : Event, 
                   audio_queue : Queue, 
@@ -10,7 +13,7 @@ def bot_process_main(shutdown_event : Event,
     shutdown_event, 
     audio_queue, 
     voice_channel_name
-  ).run(api_token)
+  ).run(api_token, log_handler=None)
 
 class SoundboardBotClient(discord.Client):
   def __init__(self, shutdown_event : Event, audio_queue : Queue, voice_channel_name : str):
@@ -32,7 +35,7 @@ class SoundboardBotClient(discord.Client):
       else:
         # Target channel found
         if len(target_channels) > 1:
-          print(f'Unexpected number of channels with name {self.voice_channel_name} found')
+          log.warning(f'Unexpected number of channels with name {self.voice_channel_name} found')
         self.voice_channel = target_channels[0]
         if len(self.voice_channel.members) == 0:
           # No members in target voice channel
@@ -56,7 +59,7 @@ class SoundboardBotClient(discord.Client):
           self.audio_client.play(SoundboardStreamAudioSource(self.audio_stream))
 
   async def on_ready(self):
-    print("Bot starting up")
+    log.info("Bot starting up")
     await self._join_leave()
     self.stream_replay_task.start()
     self.shutdown_task.start()

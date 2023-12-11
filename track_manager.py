@@ -5,8 +5,11 @@ import pathlib
 from pydub import AudioSegment
 from pydub.effects import normalize
 from pydub.silence import detect_leading_silence
+import logging
 
 from typing import Dict, Tuple, List
+
+log = logging.getLogger('track repository')
 
 FRAME_LENGTH = int(48000 * 0.02)
 ALLOWED_FILE_TYPES = ['flac', 'mp4', 'mp3', 'ogg']
@@ -20,7 +23,7 @@ class TrackManager():
     for file_type in ALLOWED_FILE_TYPES:
       files_to_load = pathlib.Path(audio_dir_path).glob(f"*.{file_type}")
       for file_path in files_to_load:
-        print(file_path)
+        log.info(f'Loaded audio file {file_path}')
         samples : AudioSegment = AudioSegment.from_file(file_path)
         processed_samples = samples.set_channels(1).set_sample_width(2).set_frame_rate(48000)
 

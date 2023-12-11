@@ -1,8 +1,8 @@
 let favorites = document.getElementById('favorites');
 let remainder = document.getElementById('remainder');
-let canSortButton = document.getElementById('isSortable');
-let nuclear_button = document.getElementById('nuclear_option');
-let stop_button = document.getElementById('stop')
+let canSortButton = document.getElementById('sortUnlockButton');
+let nuclear_button = document.getElementById('playAllButton');
+let stop_button = document.getElementById('stopButton')
 let volumeList = document.getElementById('volumeList')
 
 let favoritesArr = JSON.parse(localStorage.getItem('favoritesArr')) ?? [];

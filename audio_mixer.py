@@ -6,6 +6,9 @@ from typing import Tuple, List
 from command import *
 from track_manager import TrackManager, FRAME_LENGTH
 from uuid import UUID
+import logging
+
+log = logging.getLogger('audio mixer')
 
 def _pick_channel(_channels : List[Tuple[bool, UUID, int, float]]):
   longest_played_channel = 0
@@ -16,7 +19,7 @@ def _pick_channel(_channels : List[Tuple[bool, UUID, int, float]]):
       longest_played_channel = i
     if not active:
       return i
-  print("No inactive channel found")
+  log.info("No inactive channel found")
   return longest_played_channel
     
 def audio_mixer_thread_main(shutdown_event : Event, command_queue : queue.Queue, audio_queue : Queue, num_mixer_channels : int, track_manager : TrackManager):
