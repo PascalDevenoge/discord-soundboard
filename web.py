@@ -4,7 +4,9 @@ from command import *
 from track_manager import TrackManager
 from uuid import UUID, uuid4
 import numpy as np
-import librosa
+from pydub import AudioSegment
+from pydub.effects import normalize
+from pydub.silence import detect_leading_silence
 import pathlib
 
 def start_web_app(command_queue : Queue, track_manager : TrackManager, audio_dir_path : str):
@@ -14,7 +16,7 @@ def start_web_app(command_queue : Queue, track_manager : TrackManager, audio_dir
   def root_page():
     return send_file('./static/index.html', mimetype='text/html')
   
-  @app.route('/play/<string:uuid>/<float:volume>')
+  @app.route('/play/<string:uuid>/<float(max=15):volume>')
   def play_sample(uuid : str, volume : float):
     id = UUID(uuid)
     if not track_manager.track_exists(id):
@@ -53,7 +55,18 @@ def start_web_app(command_queue : Queue, track_manager : TrackManager, audio_dir
     uuid = uuid4()
     filepath = pathlib.Path(audio_dir_path) / (str(uuid) + file.filename)
     file.save(filepath)
-    audio, _ = librosa.load(filepath, sr=48000, mono=True)
+
+    samples : AudioSegment = AudioSegment.from_file(filepath)
+    processed_samples = samples.set_channels(1).set_sample_width(2).set_frame_rate(48000)
+
+    trim_leading = lambda x: x[detect_leading_silence(x) : ]
+    trim_end = lambda x: trim_leading(x.reverse()).reverse()
+
+    trimmed_samples = trim_leading(trim_end(processed_samples))
+
+    trimmed_samples = normalize(trimmed_samples, 15.0)
+    audio = np.array(trimmed_samples.get_array_of_samples(), dtype=np.int16).T
+    
     track_manager.add_track(uuid, file.filename[0 : -5], audio)
     return redirect("/")
 
