@@ -50,4 +50,4 @@ COPY . .
 EXPOSE 5123
 
 # Run the application.
-ENTRYPOINT [ "python", "main.py", "config.toml" ]
+ENTRYPOINT [ "python", "main.py", "data/config.toml" ]

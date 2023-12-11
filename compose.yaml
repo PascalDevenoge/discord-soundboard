@@ -9,8 +9,8 @@ services:
       - NUMBA_CACHE_DIR=/tmp
     volumes:
       - type: bind
-        source: ${DISCORD_SBRD_TRACKS_DIR}
-        target: /app/tracks
+        source: ${DISCORD_SBRD_DATA_DIR}
+        target: /app/data
 
     stop_signal: SIGINT
     init: true
