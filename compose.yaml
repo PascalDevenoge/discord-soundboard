@@ -1,3 +1,4 @@
+version: "3"
 services:
   bot:
     container_name: discord-soundboard-bot
@@ -20,3 +21,4 @@ services:
     restart: always
     labels:
       - com.centurylinklabs.watchtower.stop-signal=SIGINT
+      - com.centurylinklabs.watchtower.enable=true
