@@ -34,7 +34,7 @@ RUN addgroup \
     --gid "${GID}" \
     appuser
 
-RUN apt update && apt install -y libopus0 ffmpeg
+RUN apt update && apt install -y libopus0 ffmpeg sqlite3 && mkdir discord-soundboard && chmod u+rw discord-soundboard && chown ${UID}:${GID} discord-soundboard
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
@@ -56,4 +56,4 @@ COPY . .
 EXPOSE 5123
 
 # Run the application.
-ENTRYPOINT [ "python", "main.py", "data/config.toml" ]
+ENTRYPOINT [ "gunicorn", "-w 1", "-k eventlet", "-b 0.0.0.0:5123", "web_app:create_app()" ]

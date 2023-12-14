@@ -15,11 +15,11 @@ class LogFormatter(logging.Formatter):
   format_string = '[%(asctime)s] - %(levelname)s - (%(filename)s:%(lineno)d) : %(name)s - %(message)s'
 
   formats = {
-    logging.DEBUG:    light_blue + '[%(asctime)s]' + reset + ' - %(levelname)s - (%(filename)s:%(lineno)d) : ' + reset + purple + '%(name)s' + reset + grey + ' - %(message)s' + reset,
-    logging.INFO:     light_blue + '[%(asctime)s]' + reset + ' - %(levelname)s - (%(filename)s:%(lineno)d) : ' + reset + purple + '%(name)s' + reset + grey + ' - %(message)s' + reset,
-    logging.WARNING:  light_blue + '[%(asctime)s]' + reset + ' - ' + yellow + '%(levelname)s' + reset + ' - (%(filename)s:%(lineno)d) : ' + reset + purple + '%(name)s' + reset + ' - ' + yellow + '%(message)s' + reset,
-    logging.ERROR:    light_blue + '[%(asctime)s]' + reset + ' - ' + red + '%(levelname)s' + reset + ' - (%(filename)s:%(lineno)d) : ' + reset + purple + '%(name)s' + reset + ' - ' + red + '%(message)s' + reset,
-    logging.CRITICAL: light_blue + '[%(asctime)s]' + reset + ' - ' + bold_red + '%(levelname)s' + reset + ' - (%(filename)s:%(lineno)d) : ' + reset + purple + '%(name)s' + reset + ' - ' + bold_red + '%(message)s' + reset
+    logging.DEBUG:    light_blue + '[%(asctime)s]' + reset + ' - %(levelname)s - %(processName)s - %(threadName)s - (%(filename)s:%(lineno)d) : ' + reset + purple + '%(name)s' + reset + grey + ' - %(message)s' + reset,
+    logging.INFO:     light_blue + '[%(asctime)s]' + reset + ' - %(levelname)s - %(processName)s - %(threadName)s - (%(filename)s:%(lineno)d) : ' + reset + purple + '%(name)s' + reset + grey + ' - %(message)s' + reset,
+    logging.WARNING:  light_blue + '[%(asctime)s]' + reset + ' - ' + yellow + '%(levelname)s' + reset + ' - %(processName)s - %(threadName)s - (%(filename)s:%(lineno)d) : ' + reset + purple + '%(name)s' + reset + ' - ' + yellow + '%(message)s' + reset,
+    logging.ERROR:    light_blue + '[%(asctime)s]' + reset + ' - ' + red + '%(levelname)s' + reset + ' - %(processName)s - %(threadName)s - (%(filename)s:%(lineno)d) : ' + reset + purple + '%(name)s' + reset + ' - ' + red + '%(message)s' + reset,
+    logging.CRITICAL: light_blue + '[%(asctime)s]' + reset + ' - ' + bold_red + '%(levelname)s' + reset + ' - %(processName)s - %(threadName)s - (%(filename)s:%(lineno)d) : ' + reset + purple + '%(name)s' + reset + ' - ' + bold_red + '%(message)s' + reset
   }
   
   def format(self, record):

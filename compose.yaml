@@ -10,15 +10,16 @@ services:
       - 5123:5123
     environment:
       - DISCORD_SBRD_TOKEN=${DISCORD_SBRD_TOKEN}
+      - DISCORD_SBRD_TARGET_CHANNEL=${DISCORD_SBRD_TARGET_CHANNEL}
       - NUMBA_CACHE_DIR=/tmp
     volumes:
       - type: bind
         source: ${DISCORD_SBRD_DATA_DIR}
-        target: /app/data
+        target: /app/instance
 
-    stop_signal: SIGINT
+    stop_signal: SIGTERM
     init: true
     restart: always
     labels:
-      - com.centurylinklabs.watchtower.stop-signal=SIGINT
+      - com.centurylinklabs.watchtower.stop-signal=SIGTERM
       - com.centurylinklabs.watchtower.enable=true
