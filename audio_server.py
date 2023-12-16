@@ -1,7 +1,7 @@
 import discord
 from discord.ext import tasks
 
-import numpy as np
+import uuid
 
 import multiprocessing
 import multiprocessing.connection
@@ -146,7 +146,9 @@ class BotClient(discord.Client):
                             f"Failed to connect to voice channel: {e.args[0]}")
                     else:
                         self.audio_client.play(
-                            ClipMixingAudioSource(self.playback_active))
+                            ClipMixingAudioSource(self.playback_active)
+                        )
+                        server_event.get_event_manager().signal(server_event.PlayClipEvent(uuid.UUID('acd6229e-3485-4c1a-ab30-b964a39acbd0'), 1.0))
         else:
             # Connected to channel
             if len(self.voice_channel.members) == 1:
