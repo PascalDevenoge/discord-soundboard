@@ -5,7 +5,7 @@ import data_access
 import secrets
 import logging
 
-from multiprocessing.connection import Client
+from queue import Queue, Empty
 
 import server_event
 
@@ -90,5 +90,31 @@ def create_app():
         data_access.save_track(
             db.session, data_access.Track(id, name, normalized))
         return redirect('/')
+    
+    @app.route('/listen')
+    def event_listen():
+        def event_generator():
+            while True:
+                try:
+                    event_queue: Queue = event_manager.subscribe()
+                    event: server_event.Event = event_queue.get(timeout=10)
+                    match event.type:
+                        case server_event.EventType.PLAY_CLIP:
+                            log.info("Sent play event")
+                            yield f'event: play-clip\ndata: {{"id": "{str(event.id)}"}}\n\n'
+                        case server_event.EventType.PLAY_ALL:
+                            log.info("Sent play all event")
+                            yield 'event: play-all\ndata:\n\n'
+                        case server_event.EventType.STOP_ALL:
+                            log.info("Sent stop all event")
+                            yield 'event: stop-all\ndata:\n\n'
+                except Empty:
+                    yield ":keep-alive\n\n"
+                except EOFError:
+                    break
+                except GeneratorExit:
+                    event_manager.unsubscribe(event_queue)
+                    break
+        return Response(event_generator(), mimetype='text/event-stream')
 
     return app
