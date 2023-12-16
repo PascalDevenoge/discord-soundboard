@@ -1,6 +1,6 @@
 import logger
 
-import event_broker
+import server_event
 import audio_server
 
 import multiprocessing
@@ -9,11 +9,9 @@ import time
 import os
 import logging
 
-import data_access
 
 audio_server_shutdown_event = multiprocessing.Event()
 audio_server_process : multiprocessing.Process
-broker_process_shutdown_event = multiprocessing.Event()
 broker_process : multiprocessing.Process
 
 logger.setup()
@@ -22,7 +20,6 @@ log = logging.getLogger('System startup')
 def on_starting(server):
   global audio_server_shutdown_event
   global audio_server_process
-  global broker_process_shutdown_event
   global broker_process
 
   api_token = os.getenv('DISCORD_SBRD_TOKEN')
@@ -37,7 +34,7 @@ def on_starting(server):
 
   log.info("Starting event broker")
   broker_process = multiprocessing.Process(
-    target=event_broker.event_broker_main, name='Event Broker', args=[broker_process_shutdown_event]
+    target=server_event.event_manager_main, name='Event Broker'
   )
   broker_process.start()
   time.sleep(1)
@@ -57,7 +54,6 @@ def on_exit(server):
   audio_server_process.join()
   log.info("Audio server quit")
   
-  broker_process_shutdown_event.set()
   broker_process.join()
   log.info("Event broker quit")
 

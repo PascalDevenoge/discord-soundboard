@@ -6,10 +6,11 @@ import numpy as np
 import multiprocessing
 import multiprocessing.connection
 import threading
+import queue
 from dataclasses import dataclass
 
 import data_access
-from event import Event, EventType
+import server_event
 
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
@@ -44,13 +45,21 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
     global active_clip_list_lock
 
     log.info("Starting up")
+
     engine : Engine = data_access.init()
-    event_connection = multiprocessing.connection.Client('discord-soundboard/event-broker')
+    event_queue: queue.Queue = server_event.get_event_manager().subscribe()
+
     while not shutdown_event.is_set():
-        while event_connection.poll():
-            event : Event = event_connection.recv()
+        try:
+            event: server_event.Event = event_queue.get(block=True, timeout=0.1)
+        except queue.Empty:
+            continue
+        except EOFError:
+            log.info('Event queue closed, exiting')
+            return
+        else:
             match event.type:
-                case EventType.PLAY_CLIP:
+                case server_event.EventType.PLAY_CLIP:
                     with Session(engine) as session:
                         track = data_access.get_track(session, event.id)
                         if track is None:
@@ -58,13 +67,13 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
                         else:
                             with active_clip_list_lock:
                                 active_clip_list.append(track.samples[::20])
-                case EventType.PLAY_ALL:
+                case server_event.EventType.PLAY_ALL:
                     with Session(engine) as session:
                         tracks = data_access.get_all_tracks(session)
                         with active_clip_list_lock:
                             for track in tracks:
                                 active_clip_list.append(track.samples[::20])
-                case EventType.STOP_ALL:
+                case server_event.EventType.STOP_ALL:
                     with active_clip_list_lock:
                         active_clip_list = []
 

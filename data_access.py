@@ -1,4 +1,4 @@
-from sqlalchemy import Engine, create_engine, Uuid, String, BLOB, select, exists
+from sqlalchemy import Engine, create_engine, String, select, exists
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
 
 from pydub import AudioSegment
@@ -55,7 +55,7 @@ def get_track(session: Session, id: uuid.UUID) -> Track | None:
 
 def get_all_tracks(session: Session) -> list[Track]:
     result = session.scalars(select(_TrackModel)).all()
-    tracks : list[Track] = []
+    tracks: list[Track] = []
     for row in result:
         tracks.append(Track(
             row.id,
@@ -89,6 +89,7 @@ def save_track(session: Session, track: Track):
     )
     session.add(new_track)
     session.commit()
+
 
 def track_exists(session: Session, id: uuid.UUID) -> bool:
     return session.query(exists().where(_TrackModel.id == id)).scalar()
