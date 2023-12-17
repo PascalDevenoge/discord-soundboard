@@ -51,12 +51,12 @@ def create_app():
         track_infos = data_access.get_all_track_info(db.session)
         return {str(track_info.id): track_info.name for track_info in track_infos}
 
-    @app.route('/play/<uuid:id>/<float:volume>')
+    @app.route('/play/<uuid:id>/<float(signed=True, max=30.0):volume>')
     def play_clip(id: uuid.UUID, volume: float):
         if not data_access.track_exists(db.session, id):
             return Response(f'Track {id} does not exist', 404)
 
-        event_manager.signal(server_event.PlayClipEvent(id, 1.0))
+        event_manager.signal(server_event.PlayClipEvent(id, volume))
         return Response('', 204)
 
     @app.route('/play/all')
@@ -104,7 +104,7 @@ def create_app():
         event_manager.signal(server_event.ClipDeletedEvent(id))
         return Response(f'Track {str(id)} deleted', 204)
     
-    @app.route('/rename/<id:uuid>/<new_name:str>', methods=['POST'])
+    @app.route('/rename/<uuid:id>/<string:new_name>', methods=['POST'])
     def rename_clip(id: uuid.UUID, new_name: str):
         clip_renamed = data_access.update_track_name(db.session, id, new_name)
         if not clip_renamed:

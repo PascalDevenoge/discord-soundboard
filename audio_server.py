@@ -67,7 +67,7 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
                             log.info(f"Cannot play track {event.id}. Track not in database")
                         else:
                             with active_clip_list_lock:
-                                active_clip_list.append(track.samples[::20])
+                                active_clip_list.append(track.samples.apply_gain(event.volume)[::20])
                 case server_event.EventType.PLAY_ALL:
                     with Session(engine) as session:
                         tracks = data_access.get_all_tracks(session)

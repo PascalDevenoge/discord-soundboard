@@ -63,6 +63,9 @@ tracks = fetch('tracks')
             slider.type = "range";
             slider.classList.add("slider");
             slider.setAttribute("data-uuid", uuid);
+            slider.setAttribute("min", -50.0)
+            slider.setAttribute("max", 30.0)
+            slider.setAttribute("step", 0.1)
             listItem.appendChild(slider);
             volumeList.appendChild(listItem);
 
@@ -86,8 +89,9 @@ function createButton(id, name) {
 
     soundBite.addEventListener("click", (e) => {
         let trackUUID = e.target.getAttribute("data-uuid");
-        let volume = volumeConfig[trackUUID] ?? "1.0";
-        fetch(`play/${id}/${volume}`);
+        let volume_str = volumeConfig[trackUUID] ?? "0.0";
+        let volume = parseFloat(volume_str)
+        fetch(`play/${id}/${volume.toFixed(1)}`);
     }, false);
     return soundBite;
 }
