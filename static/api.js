@@ -1,5 +1,7 @@
+const BASE_URL = "http://localhost:5124";
+
 export function getTracks() {
-    return fetch("/tracks")
+    return fetch(BASE_URL + "/tracks")
         .then(checkStatus)
         .then(response => response.json());
 }
