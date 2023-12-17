@@ -104,7 +104,7 @@ def create_app():
         event_manager.signal(server_event.ClipDeletedEvent(id))
         return Response(f'Track {str(id)} deleted', 204)
     
-    @app.route('/rename/<id:uuid>/<new_name:str>')
+    @app.route('/rename/<id:uuid>/<new_name:str>', methods=['POST'])
     def rename_clip(id: uuid.UUID, new_name: str):
         clip_renamed = data_access.update_track_name(db.session, id, new_name)
         if not clip_renamed:
