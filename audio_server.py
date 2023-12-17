@@ -7,7 +7,6 @@ import multiprocessing
 import multiprocessing.connection
 import threading
 import queue
-from dataclasses import dataclass
 
 import data_access
 import server_event
@@ -47,11 +46,13 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
     log.info("Starting up")
 
     engine : Engine = data_access.init()
-    event_queue: queue.Queue = server_event.get_event_manager().subscribe()
+
+    event_manager = server_event.get_event_manager()
+    subscription = event_manager.subscribe()
 
     while not shutdown_event.is_set():
         try:
-            event: server_event.Event = event_queue.get(block=True, timeout=0.1)
+            event: server_event.Event = subscription.listen(timeout=1)
         except queue.Empty:
             continue
         except EOFError:
@@ -77,6 +78,7 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
                     with active_clip_list_lock:
                         active_clip_list = []
 
+    subscription.unsubscribe()
     log.info("Shutting down")
 
 

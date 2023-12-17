@@ -89,32 +89,28 @@ def create_app():
 
         data_access.save_track(
             db.session, data_access.Track(id, name, normalized))
+        
+        event_manager.signal(server_event.ClipUploadedEvent(id, name))
         return redirect('/')
     
     @app.route('/listen')
     def event_listen():
         def event_generator():
-            while True:
-                try:
-                    event_queue: Queue = event_manager.subscribe()
-                    event: server_event.Event = event_queue.get(timeout=10)
-                    match event.type:
-                        case server_event.EventType.PLAY_CLIP:
-                            log.info("Sent play event")
-                            yield f'event: play-clip\ndata: {{"id": "{str(event.id)}"}}\n\n'
-                        case server_event.EventType.PLAY_ALL:
-                            log.info("Sent play all event")
-                            yield 'event: play-all\ndata:\n\n'
-                        case server_event.EventType.STOP_ALL:
-                            log.info("Sent stop all event")
-                            yield 'event: stop-all\ndata:\n\n'
-                except Empty:
-                    yield ":keep-alive\n\n"
-                except EOFError:
-                    break
-                except GeneratorExit:
-                    event_manager.unsubscribe(event_queue)
-                    break
+            try:
+                subscription = event_manager.subscribe()
+                while True:
+                    try:
+                        event: server_event.Event = subscription.listen(timeout=5)
+                        match event.type:
+                            case server_event.EventType.CLIP_UPLOADED:
+                                yield f'event: clip-uploaded\ndata: {{"id": "{str(event.id)}", "name": "{event.name}"}}\n\n'
+                    except Empty:
+                        yield ":keep-alive\n\n"
+                    except EOFError:
+                        break
+            finally:
+                log.info("Connection closed")
+                subscription.unsubscribe()
         return Response(event_generator(), mimetype='text/event-stream')
 
     return app
