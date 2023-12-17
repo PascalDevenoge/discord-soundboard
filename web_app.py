@@ -125,11 +125,11 @@ def create_app():
                         event: server_event.Event = subscription.listen(timeout=5)
                         match event.type:
                             case server_event.EventType.CLIP_UPLOADED:
-                                yield format_event('clip-uploaded', {"id": event.id, "name": event.name})
+                                yield format_event('clip-uploaded', {"id": str(event.id), "name": event.name})
                             case server_event.EventType.CLIP_DELETED:
-                                yield format_event('clip-deleted', {"id": event.id})
+                                yield format_event('clip-deleted', {"id": str(event.id)})
                             case server_event.EventType.CLIP_RENAMED:
-                                yield format_event('clip-renamed', {"id": event.id, "new_name": event.new_name})
+                                yield format_event('clip-renamed', {"id": str(event.id), "new_name": event.new_name})
                     except Empty:
                         yield ":keep-alive\n\n"
                     except EOFError:
