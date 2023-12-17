@@ -93,3 +93,21 @@ def save_track(session: Session, track: Track):
 
 def track_exists(session: Session, id: uuid.UUID) -> bool:
     return session.query(exists().where(_TrackModel.id == id)).scalar()
+
+def delete_track(session: Session, id: uuid.UUID) -> bool:
+    track_to_delete = session.scalar(select(_TrackModel).where(_TrackModel.id == id))
+    if track_to_delete is None:
+        return False
+    
+    session.delete(track_to_delete)
+    session.commit()
+    return True
+
+def update_track_name(session: Session, id: uuid.UUID, new_name: str) -> bool:
+    track_to_rename = session.scalar(select(_TrackModel).where(_TrackModel.id == id))
+    if track_to_rename is None:
+        return False
+    
+    track_to_rename.name = new_name
+    session.commit()
+    return True

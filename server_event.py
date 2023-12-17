@@ -7,8 +7,6 @@ from abc import ABC
 from enum import Enum
 from uuid import UUID
 
-from dataclasses import dataclass
-
 import logging
 
 log = logging.getLogger('Event manager')
@@ -97,12 +95,13 @@ class EventType(Enum):
     PLAY_ALL = 2,
     STOP_ALL = 3,
     CLIP_UPLOADED = 4,
+    CLIP_DELETED = 5,
+    CLIP_RENAMED = 6,
 
 
 class Event(ABC):
     def __init__(self, event_type: EventType) -> None:
         self.type = event_type
-
 
 class PlayClipEvent(Event):
     def __init__(self, id: UUID, volume: float) -> None:
@@ -126,3 +125,14 @@ class ClipUploadedEvent(Event):
         super().__init__(EventType.CLIP_UPLOADED)
         self.id = id
         self.name = name
+
+class ClipDeletedEvent(Event):
+    def __init__(self, id: UUID) -> None:
+        super().__init__(EventType.CLIP_DELETED)
+        self.id = id
+
+class ClipRenamedEvent(Event):
+    def __init__(self, id: UUID, new_name: str) -> None:
+        super().__init__(EventType.CLIP_RENAMED)
+        self.id = id
+        self.new_name = new_name

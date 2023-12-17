@@ -4,10 +4,13 @@ import data_access
 
 import secrets
 import logging
+import json
 
-from queue import Queue, Empty
+from queue import Empty
 
 import server_event
+
+from typing import Any
 
 import pydub
 from pydub.silence import detect_leading_silence
@@ -93,6 +96,25 @@ def create_app():
         event_manager.signal(server_event.ClipUploadedEvent(id, name))
         return redirect('/')
     
+    @app.route('/delete/<uuid:id>', methods=['POST'])
+    def delete_clip(id: uuid.UUID):
+        track_deleted = data_access.delete_track(db.session, id)
+        if not track_deleted:
+            return Response(f'Track {str(id)} does not exist', 404)
+        event_manager.signal(server_event.ClipDeletedEvent(id))
+        return Response(f'Track {str(id)} deleted', 204)
+    
+    @app.route('/rename/<id:uuid>/<new_name:str>')
+    def rename_clip(id: uuid.UUID, new_name: str):
+        clip_renamed = data_access.update_track_name(db.session, id, new_name)
+        if not clip_renamed:
+            return Response(f'Track {str(id)} does not exist', 404)
+        event_manager.signal(server_event.ClipRenamedEvent(id, new_name))
+        return Response(f'Track {str(id)} renamed to {new_name}', 204)
+    
+    def format_event(event_name: str, payload: dict[str, Any]):
+        return f'event: {event_name}\ndata: {json.dumps(payload)}\n\n'
+
     @app.route('/listen')
     def event_listen():
         def event_generator():
@@ -103,7 +125,11 @@ def create_app():
                         event: server_event.Event = subscription.listen(timeout=5)
                         match event.type:
                             case server_event.EventType.CLIP_UPLOADED:
-                                yield f'event: clip-uploaded\ndata: {{"id": "{str(event.id)}", "name": "{event.name}"}}\n\n'
+                                yield format_event('clip-uploaded', {"id": event.id, "name": event.name})
+                            case server_event.EventType.CLIP_DELETED:
+                                yield format_event('clip-deleted', {"id": event.id})
+                            case server_event.EventType.CLIP_RENAMED:
+                                yield format_event('clip-renamed', {"id": event.id, "new_name": event.new_name})
                     except Empty:
                         yield ":keep-alive\n\n"
                     except EOFError:
