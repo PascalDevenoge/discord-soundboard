@@ -55,6 +55,12 @@ img {
     justify-content: flex-end;
 }
 
+.soundSlider {
+    z-index: 1;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
 #headerControls {
     display: flex;
     text-align: center;

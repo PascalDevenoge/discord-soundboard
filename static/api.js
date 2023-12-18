@@ -7,18 +7,33 @@ export function getTracks() {
 }
 
 export function playTrack(uuid, volume) {
-    fetch(`play/${uuid}/${volume}`)
+    fetch(`/play/${uuid}/${volume}`)
         .then(checkStatus);
 }
 
 export function playAllTracks() {
-    fetch("play/all")
+    fetch("/play/all")
         .then(checkStatus);
 }
 
 export function stopTracks() {
-    fetch("stop")
+    fetch("/stop")
         .then(checkStatus);
+}
+
+export function uploadTrack() {
+    // todo
+}
+
+export function renameTrack(uuid, newName) {
+    fetch(`/rename/${uuid}/${newName}`)
+        .then(checkStatus);
+}
+
+export function deleteTrack(uuid) {
+    fetch(`/delete/${uuid}`, {
+        method: "POST"
+    }).then(checkStatus);
 }
 
 function checkStatus(response) {
