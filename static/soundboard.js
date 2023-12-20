@@ -54,6 +54,15 @@ stopButton.addEventListener("click", () => {
     stopTracks();
 });
 
+window.addEventListener("contextmenu", function (e) {
+    if (e.target.classList.contains("soundBite")) {
+        console.log("worked")
+        e.preventDefault();
+        return;
+    }
+    console.log("old");
+});
+
 canSortButton.addEventListener("click", (e) => {
     e.preventDefault();
     let allSliders = document.getElementsByClassName("soundSlider");

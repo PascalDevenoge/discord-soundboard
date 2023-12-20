@@ -65,6 +65,13 @@ img {
     margin: 0;
 }
 
+#contextMenu {
+    position: fixed;
+    z-index: 10000;
+    width: 150px;
+    background-color: lightgray;
+}
+
 #headerControls {
     display: flex;
     text-align: center;
