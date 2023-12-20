@@ -54,29 +54,38 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
         try:
             event: server_event.Event = subscription.listen(timeout=1)
         except queue.Empty:
-            continue
+            pass
         except EOFError:
             log.info('Event queue closed, exiting')
             return
         else:
             match event.type:
                 case server_event.EventType.PLAY_CLIP:
-                    with Session(engine) as session:
-                        track = data_access.get_track(session, event.id)
-                        if track is None:
-                            log.info(f"Cannot play track {event.id}. Track not in database")
-                        else:
-                            with active_clip_list_lock:
-                                active_clip_list.append(track.samples.apply_gain(event.volume)[::20])
+                    if playback_active.is_set():
+                        with Session(engine) as session:
+                            track = data_access.get_track(session, event.id)
+                            if track is None:
+                                log.info(f"Cannot play track {event.id}. Track not in database")
+                            else:
+                                with active_clip_list_lock:
+                                    active_clip_list.append(track.samples.apply_gain(event.volume)[::20])
                 case server_event.EventType.PLAY_ALL:
-                    with Session(engine) as session:
-                        tracks = data_access.get_all_tracks(session)
-                        with active_clip_list_lock:
-                            for track in tracks:
-                                active_clip_list.append(track.samples[::20])
+                    if playback_active.is_set():
+                        with Session(engine) as session:
+                            tracks = data_access.get_all_tracks(session)
+                            with active_clip_list_lock:
+                                for track in tracks:
+                                    active_clip_list.append(track.samples[::20])
                 case server_event.EventType.STOP_ALL:
-                    with active_clip_list_lock:
-                        active_clip_list = []
+                    if playback_active.is_set():
+                        with active_clip_list_lock:
+                            active_clip_list = []
+
+        if not playback_active.is_set():
+            with active_clip_list_lock:
+                if len(active_clip_list) != 0:
+                    active_clip_list = []
+        
 
     subscription.unsubscribe()
     log.info("Shutting down")
