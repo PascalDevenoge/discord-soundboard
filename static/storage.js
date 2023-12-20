@@ -1,5 +1,5 @@
 let favoritesArr = JSON.parse(localStorage.getItem('favoritesArr')) ?? [];
-let volumeConfig = JSON.parse(localStorage.getItem('volumeConfig')) ?? [];
+let volumeConfig = JSON.parse(localStorage.getItem('volumeConfig')) ?? {};
 
 export function getVolume(trackUUID) {
     return volumeConfig[trackUUID] ?? "1.0";

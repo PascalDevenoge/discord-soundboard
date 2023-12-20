@@ -61,6 +61,10 @@ img {
     margin-right: 5px;
 }
 
+.soundName {
+    margin: 0;
+}
+
 #headerControls {
     display: flex;
     text-align: center;

@@ -10,14 +10,20 @@ let stopButton = document.getElementById('stopButton')
 
 let favoritesSort = new Sortable(favorites, {
     group: 'shared',
-    filter: '.title',
+    filter: function (evt, target) {
+        return (target.classList.contains('title') ||
+            target.classList.contains('soundSlider'));
+    },
     animation: 150,
     disabled: true
 });
 
 let remainderSort = new Sortable(remainder, {
     group: 'shared',
-    filter: '.title',
+    filter: function (evt, target) {
+        return (target.classList.contains('title') ||
+            target.classList.contains('soundSlider'));
+    },
     animation: 150,
     disabled: true
 });
@@ -50,16 +56,15 @@ stopButton.addEventListener("click", () => {
 
 canSortButton.addEventListener("click", (e) => {
     e.preventDefault();
+    let allSliders = document.getElementsByClassName("soundSlider");
     if (favoritesSort.options.disabled) {
         canSortButton.textContent = "Lock Order";
-        Array.from(document.getElementsByClassName("soundSlider"))
-            .forEach(slider => slider.visibility = "hidden");
+        Array.from(allSliders).forEach(slider => slider.removeAttribute("hidden"));
         favoritesSort.option('disabled', false);
         remainderSort.option('disabled', false);
     } else {
         canSortButton.textContent = "Unlock Order";
-        Array.from(document.getElementsByClassName("soundSlider"))
-            .forEach(slider => slider.visibility = "visible");
+        Array.from(allSliders).forEach(slider => slider.setAttribute("hidden", "true"));
         favoritesSort.option('disabled', true);
         remainderSort.option('disabled', true);
 

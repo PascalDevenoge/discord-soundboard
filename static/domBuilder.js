@@ -4,14 +4,22 @@ import {playTrack} from "./api.js";
 export function createButton(uuid, name) {
     const soundBite = document.createElement("div");
     const img = document.createElement("img");
-    const slider = document.createElement("img");
-    slider.setAttribute("data-uuid", uuid);
-    slider.classList.add("soundSlider");
+    const slider = document.createElement("input");
+    const nameElement = document.createElement("p");
 
+    slider.setAttribute("data-uuid", uuid);
+    slider.setAttribute("type", "range");
+    slider.setAttribute("min", "0");
+    slider.setAttribute("max", "10");
+    slider.setAttribute("hidden", "true");
+    slider.setAttribute("value", getVolume(uuid));
+    slider.classList.add("soundSlider");
     soundBite.classList.add("soundBite");
+    nameElement.classList.add("soundName");
+    nameElement.innerText = name;
     soundBite.appendChild(img);
     soundBite.appendChild(slider);
-    soundBite.innerText = name;
+    soundBite.appendChild(nameElement);
     soundBite.setAttribute("data-uuid", uuid);
 
     slider.addEventListener("change", (e) => {
@@ -19,6 +27,9 @@ export function createButton(uuid, name) {
     });
 
     soundBite.addEventListener("click", (e) => {
+        if (e.target.tagName === "INPUT") {
+            return;
+        }
         playTrack(uuid, getVolume(uuid));
     }, false);
 

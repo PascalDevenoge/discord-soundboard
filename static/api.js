@@ -5,7 +5,7 @@ export function getTracks() {
 }
 
 export function playTrack(uuid, volume) {
-    fetch(`/play/${uuid}/${volume}`)
+    fetch(`/play/${uuid}/${volume}.0`)
         .then(checkStatus);
 }
 
