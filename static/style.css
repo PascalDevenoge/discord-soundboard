@@ -9,6 +9,19 @@ h1, h2 {
     text-align: center;
 }
 
+img {
+    display: none;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+}
+
+img[src] {
+    display: block;
+}
+
 #soundboard {
     display: flex;
     justify-content: space-between;
@@ -25,24 +38,6 @@ h1, h2 {
     flex-direction: row;
     flex-wrap: wrap;
     flex-basis: 0;
-}
-
-img {
-    display: none;
-    margin-left: auto;
-    margin-right: auto;
-    width: 80%;
-    height: 80%;
-    object-fit: contain;
-}
-
-img[src] {
-    display: block;
-}
-
-
-.stuff {
-    margin: 0 10px;
 }
 
 .soundBite {
@@ -83,6 +78,14 @@ img[src] {
     justify-content: space-evenly;
 }
 
+#headerControls > button {
+    margin: 0 10px;
+}
+
+#messageContainer {
+    margin-top: 10px;
+}
+
 @media screen and (min-width: 600px) { /* 500-1000 */
     #soundboard {
         flex-direction: row;
@@ -108,8 +111,4 @@ img[src] {
     #soundboard {
         flex-direction: column;
     }
-}
-
-#messageContainer {
-    margin-top: 10px;
 }
