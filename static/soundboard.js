@@ -55,12 +55,22 @@ stopButton.addEventListener("click", () => {
 });
 
 window.addEventListener("contextmenu", function (e) {
-    if (e.target.classList.contains("soundBite")) {
-        console.log("worked")
-        e.preventDefault();
-        return;
+    let target = e.target;
+    while (target !== null) {
+        if (target.classList && target.classList.contains('soundBite')) {
+            e.preventDefault();
+            let contextMenu = document.getElementById("contextMenu");
+            contextMenu.style.top = `${e.pageY}px`;
+            contextMenu.style.left = `${e.pageX}px`;
+            contextMenu.removeAttribute("hidden");
+            return;
+        }
+        target = target.parentNode;
     }
-    console.log("old");
+});
+
+window.addEventListener("click", function (e) {
+    document.getElementById("contextMenu").setAttribute("hidden", "true");
 });
 
 canSortButton.addEventListener("click", (e) => {
