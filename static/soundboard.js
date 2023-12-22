@@ -1,12 +1,16 @@
-import {getTracks, playAllTracks, stopTracks} from "./api.js";
+import {getTracks, playAllTracks, stopTracks, deleteTrack} from "./api.js";
 import {createButton} from "./domBuilder.js";
-import {getFavorites, setFavorites} from "./storage.js";
+import {getFavorites, removeFavorite, removeVolume, setFavorites} from "./storage.js";
 
 let favorites = document.getElementById('favorites');
 let remainder = document.getElementById('remainder');
 let canSortButton = document.getElementById('sortUnlockButton');
 let nuclearButton = document.getElementById('playAllButton');
 let stopButton = document.getElementById('stopButton')
+let uploadImageButton = document.getElementById('submitImageUpload')
+let renameTrackButton = document.getElementById('renameTrack')
+let deleteTrackButton = document.getElementById('deleteTrack')
+let trackImage = document.getElementById('trackImage')
 
 let favoritesSort = new Sortable(favorites, {
     group: 'shared',
@@ -46,13 +50,8 @@ getTracks()
         }
     });
 
-nuclearButton.addEventListener("click", () => {
-    playAllTracks();
-});
-
-stopButton.addEventListener("click", () => {
-    stopTracks();
-});
+let selectedTrackUUID = "";
+let selectedTrack;
 
 window.addEventListener("contextmenu", function (e) {
     let target = e.target;
@@ -63,6 +62,8 @@ window.addEventListener("contextmenu", function (e) {
             contextMenu.style.top = `${e.pageY}px`;
             contextMenu.style.left = `${e.pageX}px`;
             contextMenu.removeAttribute("hidden");
+            selectedTrackUUID = target.getAttribute("data-uuid");
+            selectedTrack = target;
             return;
         }
         target = target.parentNode;
@@ -71,6 +72,34 @@ window.addEventListener("contextmenu", function (e) {
 
 window.addEventListener("click", function (e) {
     document.getElementById("contextMenu").setAttribute("hidden", "true");
+});
+
+uploadImageButton.addEventListener("click", (e) => {
+    let image = trackImage.files[0];
+
+});
+
+renameTrackButton.addEventListener("click", (e) => {
+
+});
+
+deleteTrackButton.addEventListener("click", (e) => {
+    if (selectedTrackUUID === "") {
+        return;
+    }
+    selectedTrack.remove();
+    console.log(selectedTrack);
+    deleteTrack(selectedTrackUUID);
+    removeFavorite(selectedTrackUUID);
+    removeVolume(selectedTrackUUID);
+});
+
+nuclearButton.addEventListener("click", () => {
+    playAllTracks();
+});
+
+stopButton.addEventListener("click", () => {
+    stopTracks();
 });
 
 canSortButton.addEventListener("click", (e) => {

@@ -17,6 +17,7 @@
             crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.1/Sortable.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
 
     {# Remember that static files must be located from the static/ path! #}
     <link rel="shortcut icon" href="../static/favicon.ico">
@@ -43,25 +44,16 @@
 <h1>The ultimate Discord Soundboard</h1>
 
 <div id="headerControls">
-    <button id="playAllButton" type="button" class="btn btn-primary stuff">The nuclear option</button>
-    <button id="stopButton" type="button" class="btn btn-danger stuff">Stop the insanity</button>
-    <button id="sortUnlockButton" type="button" class="btn btn-primary stuff">Unlock Order</button>
-    <button type="button" class="btn btn-primary stuff" data-bs-toggle="modal" data-bs-target="#uploadDialog">Upload
-    </button>
+    <button id="playAllButton" type="button" class="btn btn-primary">The nuclear option</button>
+    <button id="stopButton" type="button" class="btn btn-danger">Stop the insanity</button>
+    <button id="sortUnlockButton" type="button" class="btn btn-primary">Unlock Order</button>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadDialog">Upload</button>
 </div>
 
 <div id="soundboard">
     <div class="soundContainer">
         <h2>Favorites</h2>
-        <div id="favorites">
-<!--            <div class="soundBite" data-uuid="asdf">-->
-<!--                <img src="https://w7.pngwing.com/pngs/520/690/png-transparent-red-among-us-cartoons-among-us.png"-->
-<!--                     alt="placeholder">-->
-<!--                <input class="soundSlider" type="range" min="1" max="10" value="5">-->
-<!--                asdfköasd-->
-<!--            </div>-->
-
-        </div>
+        <div id="favorites"></div>
     </div>
     <div class="soundContainer">
         <h2>Remainder</h2>
@@ -91,14 +83,39 @@
     </div>
 </div>
 
+<div class="modal fade" id="uploadImageDialog" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form>
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Upload image</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <input id="trackImage" class="form-control" type="file" name="file" accept=".png,.jpg,.svg">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="submitImageUpload" type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 <div id="contextMenu" hidden>
-    <div class="item">
+    <div id="uploadImage" class="item" data-bs-toggle="modal" data-bs-target="#uploadImageDialog">
+        <i class="fa-regular fa-image"></i>
         Upload image
     </div>
-    <div class="item">
+    <div id="renameTrack" class="item">
+        <i class="fa-solid fa-pen"></i>
         Rename Track
     </div>
-    <div class="item">
+    <div id="deleteTrack" class="item">
+        <i class="fa-solid fa-trash"></i>
         Delete track
     </div>
 </div>
