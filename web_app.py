@@ -50,7 +50,7 @@ def create_app():
     @app.route('/tracks')
     def get_tracks():
         track_infos = data_access.get_all_track_info(db.session)
-        return {str(track_info.id): track_info.name for track_info in track_infos}
+        return [{'id': track_info.id, 'name': track_info.name, 'length': track_info.length} for track_info in track_infos]
 
     @app.route('/play/<uuid:id>/<float(signed=True, max=30.0):volume>')
     def play_clip(id: uuid.UUID, volume: float):
