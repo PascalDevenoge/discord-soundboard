@@ -9,6 +9,19 @@ h1, h2 {
     text-align: center;
 }
 
+img {
+    display: none;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+}
+
+img[src] {
+    display: block;
+}
+
 #soundboard {
     display: flex;
     justify-content: space-between;
@@ -27,19 +40,6 @@ h1, h2 {
     flex-basis: 0;
 }
 
-img {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    width: 80%;
-    height: 80%;
-    object-fit: contain;
-}
-
-.stuff {
-    margin: 0 10px;
-}
-
 .soundBite {
     width: 175px;
     height: 175px;
@@ -55,10 +55,24 @@ img {
     justify-content: flex-end;
 }
 
+.soundSlider {
+    z-index: 1;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.soundName {
+    margin: 0;
+}
+
 #headerControls {
     display: flex;
     text-align: center;
     justify-content: space-evenly;
+}
+
+#headerControls > button {
+    margin: 0 10px;
 }
 
 @media screen and (min-width: 600px) { /* 500-1000 */
@@ -86,8 +100,4 @@ img {
     #soundboard {
         flex-direction: column;
     }
-}
-
-#messageContainer {
-    margin-top: 10px;
 }

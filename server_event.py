@@ -22,7 +22,7 @@ next_id = 0
 
 def event_manager_main():
     log.info('Starting up')
-    manager = EventManager(address='discord-soundboard/event-manager')
+    manager = EventManager(address=("127.0.0.1", 5000))
 
     class Subscription():
         id: int
@@ -81,7 +81,7 @@ def event_manager_main():
 
 
 def get_event_manager() -> EventManager:
-    manager = EventManager(address='discord-soundboard/event-manager')
+    manager = EventManager(address=("127.0.0.1", 5000))
     EventManager.register('subscribe')
     EventManager.register('signal')
     EventManager.register('Subscription')

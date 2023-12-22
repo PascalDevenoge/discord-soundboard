@@ -1,0 +1,19 @@
+#contextMenu {
+    position: fixed;
+    z-index: 10000;
+    width: 150px;
+    background-color: darkgray;
+}
+
+.item {
+    padding: 8px 10px;
+}
+
+.item:hover {
+    background: #555;
+}
+
+.item > i {
+    display: inline-block;
+    margin-right: 5px;
+}
