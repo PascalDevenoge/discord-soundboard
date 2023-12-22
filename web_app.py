@@ -1,21 +1,25 @@
-from flask import Flask, render_template, Response, request, flash, redirect, g
-from flask_sqlalchemy import SQLAlchemy
-import data_access
-
-import secrets
+import json
 import logging
-
-from queue import Queue, Empty
-
-import server_event
-
-import pydub
-from pydub.silence import detect_leading_silence
-from pydub.effects import normalize
-
+from queue import Empty
+import secrets
+from typing import Any
 import uuid
 
+import data_access
+from flask import flash
+from flask import Flask
+from flask import redirect
+from flask import render_template
+from flask import request
+from flask import Response
+from flask_sqlalchemy import SQLAlchemy
+import pydub
+from pydub.effects import normalize
+from pydub.silence import detect_leading_silence
+import server_event
+
 log = logging.getLogger('Web API')
+
 
 def create_app():
     app = Flask('Soundboard Web API')
@@ -48,12 +52,12 @@ def create_app():
         track_infos = data_access.get_all_track_info(db.session)
         return {str(track_info.id): track_info.name for track_info in track_infos}
 
-    @app.route('/play/<uuid:id>/<float:volume>')
+    @app.route('/play/<uuid:id>/<float(signed=True, max=30.0):volume>')
     def play_clip(id: uuid.UUID, volume: float):
         if not data_access.track_exists(db.session, id):
             return Response(f'Track {id} does not exist', 404)
 
-        event_manager.signal(server_event.PlayClipEvent(id, 1.0))
+        event_manager.signal(server_event.PlayClipEvent(id, volume))
         return Response('', 204)
 
     @app.route('/play/all')
@@ -81,40 +85,63 @@ def create_app():
         resampled = raw_samples.set_channels(
             2).set_sample_width(2).set_frame_rate(48000)
 
-        def trim_leading(x): return x[detect_leading_silence(x):]
-        def trim_end(x): return trim_leading(x.reverse()).reverse()
+        def trim_leading(
+            x: pydub.AudioSegment) -> pydub.AudioSegment: return x[detect_leading_silence(x):]
+
+        def trim_end(x: pydub.AudioSegment) -> pydub.AudioSegment:
+            return trim_leading(x.reverse()).reverse()
 
         trimmed = trim_leading(trim_end(resampled))
-        normalized = normalize(trimmed, 15.0)
+        normalized: pydub.AudioSegment = normalize(trimmed, 15.0)
 
         data_access.save_track(
-            db.session, data_access.Track(id, name, normalized))
+            db.session, data_access.Track(id, name, normalized, normalized.duration_seconds))
+
+        event_manager.signal(server_event.ClipUploadedEvent(id, name))
         return redirect('/')
-    
+
+    @app.route('/delete/<uuid:id>', methods=['POST'])
+    def delete_clip(id: uuid.UUID):
+        track_deleted = data_access.delete_track(db.session, id)
+        if not track_deleted:
+            return Response(f'Track {str(id)} does not exist', 404)
+        event_manager.signal(server_event.ClipDeletedEvent(id))
+        return Response(f'Track {str(id)} deleted', 204)
+
+    @app.route('/rename/<uuid:id>/<string:new_name>', methods=['POST'])
+    def rename_clip(id: uuid.UUID, new_name: str):
+        clip_renamed = data_access.update_track_name(db.session, id, new_name)
+        if not clip_renamed:
+            return Response(f'Track {str(id)} does not exist', 404)
+        event_manager.signal(server_event.ClipRenamedEvent(id, new_name))
+        return Response(f'Track {str(id)} renamed to {new_name}', 204)
+
+    def format_event(event_name: str, payload: dict[str, Any]):
+        return f'event: {event_name}\ndata: {json.dumps(payload)}\n\n'
+
     @app.route('/listen')
     def event_listen():
         def event_generator():
-            while True:
-                try:
-                    event_queue: Queue = event_manager.subscribe()
-                    event: server_event.Event = event_queue.get(timeout=10)
-                    match event.type:
-                        case server_event.EventType.PLAY_CLIP:
-                            log.info("Sent play event")
-                            yield f'event: play-clip\ndata: {{"id": "{str(event.id)}"}}\n\n'
-                        case server_event.EventType.PLAY_ALL:
-                            log.info("Sent play all event")
-                            yield 'event: play-all\ndata:\n\n'
-                        case server_event.EventType.STOP_ALL:
-                            log.info("Sent stop all event")
-                            yield 'event: stop-all\ndata:\n\n'
-                except Empty:
-                    yield ":keep-alive\n\n"
-                except EOFError:
-                    break
-                except GeneratorExit:
-                    event_manager.unsubscribe(event_queue)
-                    break
+            try:
+                subscription = event_manager.subscribe()
+                while True:
+                    try:
+                        event: server_event.Event = subscription.listen(
+                            timeout=5)
+                        match event.type:
+                            case server_event.EventType.CLIP_UPLOADED:
+                                yield format_event('clip-uploaded', {"id": str(event.id), "name": event.name})
+                            case server_event.EventType.CLIP_DELETED:
+                                yield format_event('clip-deleted', {"id": str(event.id)})
+                            case server_event.EventType.CLIP_RENAMED:
+                                yield format_event('clip-renamed', {"id": str(event.id), "new_name": event.new_name})
+                    except Empty:
+                        yield ":keep-alive\n\n"
+                    except EOFError:
+                        break
+            finally:
+                log.info("Connection closed")
+                subscription.unsubscribe()
         return Response(event_generator(), mimetype='text/event-stream')
 
     return app

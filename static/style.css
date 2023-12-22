@@ -95,10 +95,6 @@ img[src] {
     margin: 0 10px;
 }
 
-#messageContainer {
-    margin-top: 10px;
-}
-
 @media screen and (min-width: 600px) { /* 500-1000 */
     #soundboard {
         flex-direction: row;
