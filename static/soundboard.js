@@ -1,6 +1,6 @@
 import {getTracks, playAllTracks, stopTracks} from "./api.js";
 import {createButton} from "./soundBiteBuilder.js";
-import {getFavorites, setFavorites} from "./storage.js";
+import {getAllTracks, getFavorites, getTrackById, setFavorites, setTracks} from "./storage.js";
 import {initContextMenu} from "./contextMenu/contextMenu.js";
 
 let favorites = document.getElementById('favorites');
@@ -31,17 +31,16 @@ let remainderSort = new Sortable(remainder, {
 
 getTracks()
     .then(tracksResponse => {
-        let favoriteOrder = getFavorites();
+        setTracks(tracksResponse);
 
-        for (let favUUID of favoriteOrder) {
-            const trackUUID = Object.keys(tracksResponse).find(uuid => tracksResponse[uuid] === tracksResponse[favUUID]);
-            const button = createButton(trackUUID, tracksResponse[favUUID], undefined);
+        for (let trackUUID of getFavorites()) {
+            const button = createButton(trackUUID, getTrackById(trackUUID).name, undefined);
             favorites.appendChild(button);
         }
 
-        for (let uuid in tracksResponse) {
-            if (!favoriteOrder.includes(uuid)) {
-                const button = createButton(uuid, tracksResponse[uuid], undefined);
+        for (let track of getAllTracks()) {
+            if (!getFavorites().includes(track.id)) {
+                const button = createButton(track.id, track.name, undefined);
                 remainder.appendChild(button);
             }
         }

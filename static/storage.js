@@ -1,5 +1,6 @@
 let favoritesArr = JSON.parse(localStorage.getItem('favoritesArr')) ?? [];
 let volumeConfig = JSON.parse(localStorage.getItem('volumeConfig')) ?? {};
+let tracks = [];
 
 export function getVolume(trackUUID) {
     return volumeConfig[trackUUID] ?? "1";
@@ -26,4 +27,16 @@ export function setFavorites(favOrder) {
 export function removeFavorite(uuid) {
     favoritesArr = favoritesArr.filter(favUUID => favUUID !== uuid);
     localStorage.setItem('favoritesArr', JSON.stringify(favoritesArr));
+}
+
+export function setTracks(tracksResponse) {
+    tracks = tracksResponse;
+}
+
+export function getAllTracks() {
+    return tracks;
+}
+
+export function getTrackById(uuid) {
+    return tracks.find(track => track.id === uuid) ?? {name: "Unknown Track"};
 }
