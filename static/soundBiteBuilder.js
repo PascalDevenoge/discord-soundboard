@@ -1,6 +1,5 @@
 import {getVolume, setVolume} from "./storage.js";
 import {playTrack} from "./api.js";
-import {func} from "https://unpkg.com/es-react@latest/dev/prop-types.js";
 
 export function createButton(uuid, name, img) {
     const soundBite = document.createElement("div");
