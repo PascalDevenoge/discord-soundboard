@@ -104,13 +104,34 @@
     </div>
 </div>
 
+<div class="modal fade" id="renameTrackDialog" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form>
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Set new name</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <label for="trackName">New name:</label>
+                        <input id="trackName" class="form-control" type="text" name="trackName">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="submitTrackName" type="submit" class="btn btn-primary">Rename</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <div id="contextMenu" hidden>
     <div id="uploadImage" class="item" data-bs-toggle="modal" data-bs-target="#uploadImageDialog">
         <i class="fa-regular fa-image"></i>
         Upload image
     </div>
-    <div id="renameTrack" class="item">
+    <div id="renameTrack" class="item" data-bs-toggle="modal" data-bs-target="#renameTrackDialog">
         <i class="fa-solid fa-pen"></i>
         Rename Track
     </div>

@@ -1,4 +1,4 @@
-import {getTracks, playAllTracks, stopTracks, deleteTrack} from "./api.js";
+import {getTracks, playAllTracks, stopTracks, deleteTrack, renameTrack} from "./api.js";
 import {createButton} from "./domBuilder.js";
 import {getFavorites, removeFavorite, removeVolume, setFavorites} from "./storage.js";
 
@@ -8,7 +8,7 @@ let canSortButton = document.getElementById('sortUnlockButton');
 let nuclearButton = document.getElementById('playAllButton');
 let stopButton = document.getElementById('stopButton')
 let uploadImageButton = document.getElementById('submitImageUpload')
-let renameTrackButton = document.getElementById('renameTrack')
+let renameTrackButton = document.getElementById('submitTrackName')
 let deleteTrackButton = document.getElementById('deleteTrack')
 let trackImage = document.getElementById('trackImage')
 
@@ -76,11 +76,17 @@ window.addEventListener("click", function (e) {
 
 uploadImageButton.addEventListener("click", (e) => {
     let image = trackImage.files[0];
-
 });
 
 renameTrackButton.addEventListener("click", (e) => {
-
+    e.preventDefault();
+    if (selectedTrackUUID === "") {
+        return;
+    }
+    let newName = document.getElementById("trackName").value;
+    renameTrack(selectedTrackUUID, newName);
+    selectedTrack.getElementsByTagName("p")[0].textContent = newName;
+    bootstrap.Modal.getInstance(document.getElementById('renameTrackDialog')).hide();
 });
 
 deleteTrackButton.addEventListener("click", (e) => {

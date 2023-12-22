@@ -23,8 +23,14 @@ export function uploadTrack() {
     // todo
 }
 
+export function uploadImage() {
+    // todo do we even have a route for this?
+}
+
 export function renameTrack(uuid, newName) {
-    fetch(`/rename/${uuid}/${newName}`)
+    fetch(`/rename/${uuid}/${newName}`, {
+        method: "POST"
+    })
         .then(checkStatus);
 }
 
