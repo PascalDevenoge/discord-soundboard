@@ -2,6 +2,7 @@ import {getTracks, playAllTracks, stopTracks} from "./api.js";
 import {createButton} from "./soundBiteBuilder.js";
 import {getAllTracks, getFavorites, getTrackById, setFavorites, setTracks} from "./storage.js";
 import {initContextMenu} from "./contextMenu/contextMenu.js";
+import {initSequencer} from "./sequencer/sequencer.js";
 
 let favorites = document.getElementById('favorites');
 let remainder = document.getElementById('remainder');
@@ -74,3 +75,4 @@ canSortButton.addEventListener("click", (e) => {
 });
 
 initContextMenu();
+initSequencer();

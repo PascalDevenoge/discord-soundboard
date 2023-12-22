@@ -1,0 +1,8 @@
+a:hover { /*todo replace a with class*/
+    color: inherit;
+}
+
+.accordion-header {
+    display: flex;
+    flex-direction: row;
+}
