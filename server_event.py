@@ -96,6 +96,9 @@ class EventType(Enum):
     CLIP_UPLOADED = 4,
     CLIP_DELETED = 5,
     CLIP_RENAMED = 6,
+    PLAY_SEQUENCE = 7,
+    SEQUENCE_CREATED = 8,
+    SEQUENCE_DELETED = 9,
 
 
 class Event(ABC):
@@ -138,3 +141,22 @@ class ClipRenamedEvent(Event):
         super().__init__(EventType.CLIP_RENAMED)
         self.id = id
         self.new_name = new_name
+
+
+class SequenceCreatedEvent(Event):
+    def __init__(self, id: int, name: str) -> None:
+        super().__init__(EventType.SEQUENCE_CREATED)
+        self.id = id
+        self.name = name
+
+
+class SequenceDeletedEvent(Event):
+    def __init__(self, id: int) -> None:
+        super().__init__(EventType.SEQUENCE_DELETED)
+        self.id = id
+
+
+class PlaySequenceEvent(Event):
+    def __init__(self, id: int) -> None:
+        super().__init__(EventType.PLAY_SEQUENCE)
+        self.id = id

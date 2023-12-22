@@ -65,6 +65,7 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
                                 with active_clip_list_lock:
                                     active_clip_list.append(
                                         track.samples.apply_gain(event.volume)[::20])
+
                 case server_event.EventType.PLAY_ALL:
                     if playback_active.is_set():
                         with Session(engine) as session:
@@ -73,10 +74,15 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
                                 for track in tracks:
                                     active_clip_list.append(
                                         track.samples[::20])
+
                 case server_event.EventType.STOP_ALL:
                     if playback_active.is_set():
                         with active_clip_list_lock:
                             active_clip_list = []
+
+                case server_event.EventType.PLAY_SEQUENCE:
+                    if playback_active.is_set():
+                        log.info(f'Should be playing sequence {event.id}')
 
         if not playback_active.is_set():
             with active_clip_list_lock:
