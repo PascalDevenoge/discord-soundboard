@@ -1,13 +1,11 @@
-import logger
-
-import server_event
-import audio_server
-
-import multiprocessing
-
-import time
-import os
 import logging
+import multiprocessing
+import os
+import time
+
+import audio_server
+import logger
+import server_event
 
 
 audio_server_shutdown_event = multiprocessing.Event()

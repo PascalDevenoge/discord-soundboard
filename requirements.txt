@@ -5,3 +5,4 @@ pydub               == 0.25.1
 gunicorn[eventlet]  == 21.2.0
 SQLAlchemy          == 2.0.23
 alembic             == 1.13.1
+pre-commit

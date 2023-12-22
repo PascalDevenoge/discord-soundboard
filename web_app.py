@@ -1,24 +1,25 @@
-from flask import Flask, render_template, Response, request, flash, redirect, g
-from flask_sqlalchemy import SQLAlchemy
-import data_access
-
-import secrets
-import logging
 import json
-
+import logging
 from queue import Empty
-
-import server_event
-
+import secrets
 from typing import Any
-
-import pydub
-from pydub.silence import detect_leading_silence
-from pydub.effects import normalize
-
 import uuid
 
+import data_access
+from flask import flash
+from flask import Flask
+from flask import redirect
+from flask import render_template
+from flask import request
+from flask import Response
+from flask_sqlalchemy import SQLAlchemy
+import pydub
+from pydub.effects import normalize
+from pydub.silence import detect_leading_silence
+import server_event
+
 log = logging.getLogger('Web API')
+
 
 def create_app():
     app = Flask('Soundboard Web API')
@@ -84,18 +85,21 @@ def create_app():
         resampled = raw_samples.set_channels(
             2).set_sample_width(2).set_frame_rate(48000)
 
-        def trim_leading(x: pydub.AudioSegment) -> pydub.AudioSegment: return x[detect_leading_silence(x):]
-        def trim_end(x: pydub.AudioSegment) -> pydub.AudioSegment: return trim_leading(x.reverse()).reverse()
+        def trim_leading(
+            x: pydub.AudioSegment) -> pydub.AudioSegment: return x[detect_leading_silence(x):]
+
+        def trim_end(x: pydub.AudioSegment) -> pydub.AudioSegment:
+            return trim_leading(x.reverse()).reverse()
 
         trimmed = trim_leading(trim_end(resampled))
         normalized: pydub.AudioSegment = normalize(trimmed, 15.0)
 
         data_access.save_track(
             db.session, data_access.Track(id, name, normalized, normalized.duration_seconds))
-        
+
         event_manager.signal(server_event.ClipUploadedEvent(id, name))
         return redirect('/')
-    
+
     @app.route('/delete/<uuid:id>', methods=['POST'])
     def delete_clip(id: uuid.UUID):
         track_deleted = data_access.delete_track(db.session, id)
@@ -103,7 +107,7 @@ def create_app():
             return Response(f'Track {str(id)} does not exist', 404)
         event_manager.signal(server_event.ClipDeletedEvent(id))
         return Response(f'Track {str(id)} deleted', 204)
-    
+
     @app.route('/rename/<uuid:id>/<string:new_name>', methods=['POST'])
     def rename_clip(id: uuid.UUID, new_name: str):
         clip_renamed = data_access.update_track_name(db.session, id, new_name)
@@ -111,7 +115,7 @@ def create_app():
             return Response(f'Track {str(id)} does not exist', 404)
         event_manager.signal(server_event.ClipRenamedEvent(id, new_name))
         return Response(f'Track {str(id)} renamed to {new_name}', 204)
-    
+
     def format_event(event_name: str, payload: dict[str, Any]):
         return f'event: {event_name}\ndata: {json.dumps(payload)}\n\n'
 
@@ -122,7 +126,8 @@ def create_app():
                 subscription = event_manager.subscribe()
                 while True:
                     try:
-                        event: server_event.Event = subscription.listen(timeout=5)
+                        event: server_event.Event = subscription.listen(
+                            timeout=5)
                         match event.type:
                             case server_event.EventType.CLIP_UPLOADED:
                                 yield format_event('clip-uploaded', {"id": str(event.id), "name": event.name})

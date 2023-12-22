@@ -1,13 +1,12 @@
-import multiprocessing
-import multiprocessing.managers
-import threading
-import queue
-
 from abc import ABC
 from enum import Enum
+import logging
+import multiprocessing
+import multiprocessing.managers
+import queue
+import threading
 from uuid import UUID
 
-import logging
 
 log = logging.getLogger('Event manager')
 
@@ -103,6 +102,7 @@ class Event(ABC):
     def __init__(self, event_type: EventType) -> None:
         self.type = event_type
 
+
 class PlayClipEvent(Event):
     def __init__(self, id: UUID, volume: float) -> None:
         super().__init__(EventType.PLAY_CLIP)
@@ -126,10 +126,12 @@ class ClipUploadedEvent(Event):
         self.id = id
         self.name = name
 
+
 class ClipDeletedEvent(Event):
     def __init__(self, id: UUID) -> None:
         super().__init__(EventType.CLIP_DELETED)
         self.id = id
+
 
 class ClipRenamedEvent(Event):
     def __init__(self, id: UUID, new_name: str) -> None:

@@ -1,24 +1,18 @@
-import discord
-from discord.ext import tasks
-
-import uuid
-
+import logging
 import multiprocessing
 import multiprocessing.connection
-import threading
 import queue
+import threading
+from typing import Generator
+import uuid
 
 import data_access
+import discord
+from discord.ext import tasks
+from pydub import AudioSegment
 import server_event
-
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
-
-from pydub import AudioSegment
-
-import logging
-
-from typing import Tuple, Generator
 
 FRAME_LENGTH: int = int(48000 * 0.02)
 
@@ -45,7 +39,7 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
 
     log.info("Starting up")
 
-    engine : Engine = data_access.init()
+    engine: Engine = data_access.init()
 
     event_manager = server_event.get_event_manager()
     subscription = event_manager.subscribe()
@@ -65,17 +59,20 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
                         with Session(engine) as session:
                             track = data_access.get_track(session, event.id)
                             if track is None:
-                                log.info(f"Cannot play track {event.id}. Track not in database")
+                                log.info(
+                                    f"Cannot play track {event.id}. Track not in database")
                             else:
                                 with active_clip_list_lock:
-                                    active_clip_list.append(track.samples.apply_gain(event.volume)[::20])
+                                    active_clip_list.append(
+                                        track.samples.apply_gain(event.volume)[::20])
                 case server_event.EventType.PLAY_ALL:
                     if playback_active.is_set():
                         with Session(engine) as session:
                             tracks = data_access.get_all_tracks(session)
                             with active_clip_list_lock:
                                 for track in tracks:
-                                    active_clip_list.append(track.samples[::20])
+                                    active_clip_list.append(
+                                        track.samples[::20])
                 case server_event.EventType.STOP_ALL:
                     if playback_active.is_set():
                         with active_clip_list_lock:
@@ -85,7 +82,6 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
             with active_clip_list_lock:
                 if len(active_clip_list) != 0:
                     active_clip_list = []
-        
 
     subscription.unsubscribe()
     log.info("Shutting down")
@@ -103,10 +99,11 @@ class ClipMixingAudioSource(discord.AudioSource):
         global active_clip_list
         global active_clip_list_lock
 
-        finished_frame = AudioSegment.silent(duration=20, frame_rate=48000).set_sample_width(2).set_channels(2)
+        finished_frame = AudioSegment.silent(
+            duration=20, frame_rate=48000).set_sample_width(2).set_channels(2)
 
         with active_clip_list_lock:
-            unfinished_clips : list[Generator] = []
+            unfinished_clips: list[Generator] = []
             for active_track in active_clip_list:
                 try:
                     finished_frame = finished_frame.overlay(next(active_track))
@@ -159,7 +156,8 @@ class BotClient(discord.Client):
                         self.audio_client.play(
                             ClipMixingAudioSource(self.playback_active)
                         )
-                        server_event.get_event_manager().signal(server_event.PlayClipEvent(uuid.UUID('acd6229e-3485-4c1a-ab30-b964a39acbd0'), 1.0))
+                        server_event.get_event_manager().signal(server_event.PlayClipEvent(
+                            uuid.UUID('acd6229e-3485-4c1a-ab30-b964a39acbd0'), 1.0))
         else:
             # Connected to channel
             if len(self.voice_channel.members) == 1:

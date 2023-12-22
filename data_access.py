@@ -1,11 +1,16 @@
-from sqlalchemy import Engine, create_engine, String, select, exists
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
-
-from pydub import AudioSegment
-
+from dataclasses import dataclass
 import uuid
 
-from dataclasses import dataclass
+from pydub import AudioSegment
+from sqlalchemy import create_engine
+from sqlalchemy import Engine
+from sqlalchemy import exists
+from sqlalchemy import select
+from sqlalchemy import String
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import Session
 
 
 class _Base(DeclarativeBase):
@@ -93,20 +98,24 @@ def save_track(session: Session, track: Track):
 def track_exists(session: Session, id: uuid.UUID) -> bool:
     return session.query(exists().where(_TrackModel.id == id)).scalar()
 
+
 def delete_track(session: Session, id: uuid.UUID) -> bool:
-    track_to_delete = session.scalar(select(_TrackModel).where(_TrackModel.id == id))
+    track_to_delete = session.scalar(
+        select(_TrackModel).where(_TrackModel.id == id))
     if track_to_delete is None:
         return False
-    
+
     session.delete(track_to_delete)
     session.commit()
     return True
 
+
 def update_track_name(session: Session, id: uuid.UUID, new_name: str) -> bool:
-    track_to_rename = session.scalar(select(_TrackModel).where(_TrackModel.id == id))
+    track_to_rename = session.scalar(
+        select(_TrackModel).where(_TrackModel.id == id))
     if track_to_rename is None:
         return False
-    
+
     track_to_rename.name = new_name
     session.commit()
     return True
