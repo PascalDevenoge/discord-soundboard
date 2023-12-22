@@ -129,6 +129,12 @@ def create_app():
                         event: server_event.Event = subscription.listen(
                             timeout=5)
                         match event.type:
+                            case server_event.EventType.PLAY_CLIP:
+                                yield format_event('clip-played', {"id": str(event.id)})
+                            case server_event.EventType.PLAY_ALL:
+                                yield format_event('all-clips-played', {})
+                            case server_event.EventType.STOP_ALL:
+                                yield format_event('all-clips-stopped', {})
                             case server_event.EventType.CLIP_UPLOADED:
                                 yield format_event('clip-uploaded', {"id": str(event.id), "name": event.name})
                             case server_event.EventType.CLIP_DELETED:
