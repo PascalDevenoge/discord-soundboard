@@ -1,6 +1,10 @@
 import {getAllSequences} from "../storage.js";
 
 let sequenceList = document.getElementById('sequenceList');
+let mainSequencer = document.getElementById('mainSequencer');
+let sequenceCreator = document.getElementById('sequenceCreator');
+let createSequenceButton = document.getElementById('createSequence');
+let sequenceBackButton = document.getElementById('sequenceBack');
 let allSequences = getAllSequences();
 
 let exampleSequence = {
@@ -33,6 +37,16 @@ export function initSequencer() {
     for (const sequence in allSequences) {
         sequenceList.appendChild(createSequence(sequence));
     }
+
+    createSequenceButton.addEventListener("click", () => {
+        mainSequencer.style.display = "none";
+        sequenceCreator.style.display = "block";
+    });
+
+    sequenceBackButton.addEventListener("click", () => {
+        mainSequencer.style.display = "block";
+        sequenceCreator.style.display = "none";
+    });
 }
 
 function createSequence(sequence) {
