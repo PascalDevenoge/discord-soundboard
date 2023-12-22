@@ -84,14 +84,14 @@ def create_app():
         resampled = raw_samples.set_channels(
             2).set_sample_width(2).set_frame_rate(48000)
 
-        def trim_leading(x): return x[detect_leading_silence(x):]
-        def trim_end(x): return trim_leading(x.reverse()).reverse()
+        def trim_leading(x: pydub.AudioSegment) -> pydub.AudioSegment: return x[detect_leading_silence(x):]
+        def trim_end(x: pydub.AudioSegment) -> pydub.AudioSegment: return trim_leading(x.reverse()).reverse()
 
         trimmed = trim_leading(trim_end(resampled))
-        normalized = normalize(trimmed, 15.0)
+        normalized: pydub.AudioSegment = normalize(trimmed, 15.0)
 
         data_access.save_track(
-            db.session, data_access.Track(id, name, normalized))
+            db.session, data_access.Track(id, name, normalized, normalized.duration_seconds))
         
         event_manager.signal(server_event.ClipUploadedEvent(id, name))
         return redirect('/')

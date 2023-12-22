@@ -18,9 +18,7 @@ class _TrackModel(_Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(100))
     samples: Mapped[bytes]
-    sample_depth: Mapped[int]
-    sample_rate: Mapped[int]
-    num_channels: Mapped[int]
+    clip_length: Mapped[float]
 
 
 @dataclass
@@ -28,12 +26,14 @@ class Track():
     id: uuid.UUID
     name: str
     samples: AudioSegment
+    length: float
 
 
 @dataclass
 class TrackInfo():
     id: uuid.UUID
     name: str
+    length: float
 
 
 def init() -> Engine:
@@ -48,9 +48,9 @@ def get_track(session: Session, id: uuid.UUID) -> Track | None:
     if result is None:
         return None
 
-    audio = AudioSegment(result.samples, sample_width=result.sample_depth,
-                         frame_rate=result.sample_rate, channels=result.num_channels)
-    return Track(result.id, result.name, audio)
+    audio = AudioSegment(result.samples, sample_width=2,
+                         frame_rate=48000, channels=2)
+    return Track(result.id, result.name, audio, result.clip_length)
 
 
 def get_all_tracks(session: Session) -> list[Track]:
@@ -62,10 +62,11 @@ def get_all_tracks(session: Session) -> list[Track]:
             row.name,
             AudioSegment(
                 row.samples,
-                sample_width=row.sample_depth,
-                frame_rate=row.sample_rate,
-                channels=row.num_channels
-            )
+                sample_width=2,
+                frame_rate=48000,
+                channels=2
+            ),
+            row.clip_length
         ))
     return tracks
 
@@ -74,7 +75,7 @@ def get_all_track_info(session: Session) -> list[TrackInfo]:
     track_infos: list[TrackInfo] = []
     results = session.scalars(select(_TrackModel))
     for track in results:
-        track_infos.append(TrackInfo(track.id, track.name))
+        track_infos.append(TrackInfo(track.id, track.name, track.clip_length))
     return track_infos
 
 
@@ -83,9 +84,7 @@ def save_track(session: Session, track: Track):
         id=track.id,
         name=track.name,
         samples=track.samples.raw_data,
-        sample_depth=track.samples.sample_width,
-        sample_rate=track.samples.frame_rate,
-        num_channels=track.samples.channels
+        clip_length=track.samples.duration_seconds
     )
     session.add(new_track)
     session.commit()
