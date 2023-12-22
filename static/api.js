@@ -4,6 +4,18 @@ export function getTracks() {
         .then(response => response.json());
 }
 
+export function getSequences() {
+    // todo wait for pascal
+}
+
+export function playSequence(id) {
+    // todo wait for pascal
+}
+
+export function removeSequence(id) {
+    // todo wait for pascal
+}
+
 export function playTrack(uuid, volume) {
     fetch(`/play/${uuid}/${volume}.0`)
         .then(checkStatus);
