@@ -184,7 +184,7 @@ def create_app():
         sequence = data_access.Sequence(
             id=-1, name=sequence_data['name'], steps=[])
 
-        for num, step in enumerate(sequence_data.tracks):
+        for num, step in enumerate(sequence_data['tracks']):
             sequence.steps.append(data_access.SequenceStep(
                 id=-1,
                 num=num,
