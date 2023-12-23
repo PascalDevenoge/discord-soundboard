@@ -27,7 +27,7 @@ export function playSequence(id) {
         .then(checkStatus);
 }
 
-export function removeSequence(id) {
+export function deleteSequence(id) {
     fetch(`/sequences/delete/${id}`, {
         method: "POST"
     })

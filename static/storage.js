@@ -1,6 +1,5 @@
 let favoritesArr = JSON.parse(localStorage.getItem('favoritesArr')) ?? [];
 let volumeConfig = JSON.parse(localStorage.getItem('volumeConfig')) ?? {};
-let sequenceArr = JSON.parse(localStorage.getItem('sequenceArr')) ?? {};
 let tracks = [];
 
 export function getVolume(trackUUID) {
@@ -38,14 +37,10 @@ export function getAllTracks() {
     return tracks;
 }
 
+export function getTrackNames() {
+    return tracks.map(track => track.name);
+}
+
 export function getTrackById(uuid) {
     return tracks.find(track => track.id === uuid) ?? {name: "Unknown Track"};
-}
-
-export function getAllSequences() {
-    return sequenceArr ?? [];
-}
-
-export function getSequence(uuid) {
-    return sequenceArr[uuid] ?? [];
 }

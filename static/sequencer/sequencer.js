@@ -1,42 +1,25 @@
-import {getAllSequences} from "../storage.js";
+import {createSequenceBuilder} from "./sequenceCreator.js";
+import {createSequence, deleteSequence, getSequences, playSequence} from "../api.js";
 
 let sequenceList = document.getElementById('sequenceList');
 let mainSequencer = document.getElementById('mainSequencer');
 let sequenceCreator = document.getElementById('sequenceCreator');
 let createSequenceButton = document.getElementById('createSequence');
 let sequenceBackButton = document.getElementById('sequenceBack');
-let allSequences = getAllSequences();
-
-let exampleSequence = {
-    name: "i will send you to jesus x4",
-    tracks: [
-        {
-            uuid: "1234",
-            volume: 1,
-            delay: 0,
-        },
-        {
-            uuid: "1234",
-            volume: 1,
-            delay: 100,
-        },
-        {
-            uuid: "1234",
-            volume: 1,
-            delay: 50,
-        },
-        {
-            uuid: "1234",
-            volume: 1,
-            delay: 0,
-        },
-    ]
-}
+let allSequences = getSequences();
 
 export function initSequencer() {
     for (const sequence in allSequences) {
-        sequenceList.appendChild(createSequence(sequence));
+        sequenceList.appendChild(createSequenceDialog(sequence));
+        document.getElementById('playSequence').addEventListener('click', () => {
+            playSequence(sequence.id);
+        });
+        document.getElementById('deleteSequence').addEventListener('click', () => {
+            deleteSequence(sequence.id);
+        });
     }
+
+    sequenceCreator.appendChild(createSequenceBuilder());
 
     createSequenceButton.addEventListener("click", () => {
         mainSequencer.style.display = "none";
@@ -49,9 +32,10 @@ export function initSequencer() {
     });
 }
 
-function createSequence(sequence) {
+function createSequenceDialog(sequence) {
     const accordion = document.createElement('div');
     accordion.classList.add('accordion-item');
+    accordion.setAttribute("sequenceId", sequence.id);
     accordion.innerHTML = `
         <h2 class="accordion-header">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -59,8 +43,8 @@ function createSequence(sequence) {
                     aria-controls="flush-collapseOne">
                 ${sequence.name}
             </button>
-            <i class="fa-solid fa-play"></i>
-            <i class="fa-solid fa-trash"></i>
+            <i class="fa-solid fa-play playSequence"></i>
+            <i class="fa-solid fa-trash deleteSequence"></i>
         </h2>
         <div class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
             <div class="accordion-body">
