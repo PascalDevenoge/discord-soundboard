@@ -33,7 +33,6 @@ let remainderSort = new Sortable(remainder, {
 getTracks()
     .then(tracksResponse => {
         setTracks(tracksResponse);
-
         for (let trackUUID of getFavorites()) {
             const button = createButton(trackUUID, getTrackById(trackUUID).name, undefined);
             favorites.appendChild(button);

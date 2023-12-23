@@ -42,5 +42,9 @@ export function getTrackNames() {
 }
 
 export function getTrackById(uuid) {
-    return tracks.find(track => track.id === uuid) ?? {name: "Unknown Track"};
+    return tracks.find(track => track.id === uuid);
+}
+
+export function getTrackByName(name) {
+    return tracks.find(track => track.name === name).id;
 }

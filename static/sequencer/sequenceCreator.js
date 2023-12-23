@@ -1,9 +1,8 @@
-import {getTrackNames} from "../storage.js";
+import {getTrackByName, getTrackNames} from "../storage.js";
 import {createSequence} from "../api.js";
 
 let sequenceCreator = document.getElementById('sequenceCreator');
 let sequenceFinishButton = document.getElementById('sequenceFinish');
-let trackNames = getTrackNames();
 
 export function createSequenceBuilder() {
     const sequence = document.createElement('div');
@@ -16,7 +15,7 @@ export function createSequenceBuilder() {
         }
         for (let entry of document.getElementsByClassName('sequenceEntry')) {
             let track = {
-                uuid: entry.getElementsByClassName('sequenceVolumeDropdown')[0].value,
+                uuid: getTrackByName(entry.getElementsByClassName('sequenceVolumeDropdown')[0].value),
                 volume: entry.getElementsByClassName('sequenceEntryVolume')[0].value,
                 delay: entry.getElementsByClassName('sequenceEntryDelay')[0].value,
             };
@@ -75,15 +74,7 @@ function createSequenceDropdown() {
     dropdown.classList.add('sequenceVolumeDropdown');
     dropdown.setAttribute('data-placeholder', 'Choose track');
 
-    const option = document.createElement('option');
-    option.innerText = "asfdasd";
-    dropdown.appendChild(option);
-
-    const option2 = document.createElement('option');
-    option2.innerText = "asfdasdasdfasfadsfdasfafdsfasdfasdfddf";
-    dropdown.appendChild(option2);
-
-    for (const track of trackNames) {
+    for (const track of getTrackNames()) {
         const option = document.createElement('option');
         option.innerText = track;
         dropdown.appendChild(option);

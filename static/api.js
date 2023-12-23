@@ -11,7 +11,7 @@ export function getSequences() {
 }
 
 export function createSequence(sequence) {
-    return fetch("/sequences", {
+    return fetch("/sequences/create", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
