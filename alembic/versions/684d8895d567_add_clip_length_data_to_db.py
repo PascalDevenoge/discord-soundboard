@@ -40,8 +40,7 @@ def upgrade() -> None:
     bind = op.get_bind()
     session = orm.Session(bind=bind)
 
-    op.add_column('tracks', sa.Column('clip_length', sa.Float,
-                  nullable=False, server_default='0.0'))
+    op.add_column('tracks', sa.Column('clip_length', sa.Float))
 
     for track in session.query(TrackModel):
         audio = pydub.AudioSegment(

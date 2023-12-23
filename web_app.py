@@ -141,6 +141,12 @@ def create_app():
                                 yield format_event('clip-deleted', {"id": str(event.id)})
                             case server_event.EventType.CLIP_RENAMED:
                                 yield format_event('clip-renamed', {"id": str(event.id), "new_name": event.new_name})
+                            case server_event.EventType.PLAY_SEQUENCE:
+                                yield format_event('sequence-played', {'id': event.id})
+                            case server_event.EventType.SEQUENCE_CREATED:
+                                yield format_event('sequence-created', {'id': event.id, 'name': event.name})
+                            case server_event.EventType.SEQUENCE_DELETED:
+                                yield format_event('sequence-deleted', {'id': event.id})
                     except Empty:
                         yield ":keep-alive\n\n"
                     except EOFError:
@@ -149,5 +155,64 @@ def create_app():
                 log.info("Connection closed")
                 subscription.unsubscribe()
         return Response(event_generator(), mimetype='text/event-stream')
+
+    @app.route('/sequences')
+    def get_all_sequences():
+        sequences = data_access.get_all_sequences(db.session)
+
+        sequence_infos = []
+        for sequence in sequences:
+            sequence_infos.append(
+                {
+                    'id': sequence.id,
+                    'name': sequence.name,
+                    'tracks': [
+                        {
+                            'uuid': step.clip_id,
+                            'volume': step.volume,
+                            'delay': step.delay,
+                        } for step in sequence.steps
+                    ]
+                }
+            )
+
+        return sequence_infos
+
+    @app.route('/sequences/create', methods=['POST'])
+    def create_sequence():
+        sequence_data = request.json
+        sequence = data_access.Sequence(
+            id=-1, name=sequence_data.name, steps=[])
+
+        for num, step in enumerate(sequence_data.tracks):
+            sequence.steps.append(data_access.SequenceStep(
+                id=-1,
+                num=num,
+                clip_id=uuid.UUID(step.uuid),
+                volume=step.volume,
+                delay=step.delay
+            ))
+
+        id = data_access.save_sequence(db.session, sequence)
+        event_manager.signal(
+            server_event.SequenceCreatedEvent(id, sequence.name))
+        return Response(str(id), 201)
+
+    @app.route('/sequences/delete/<int:id>', methods=['POST'])
+    def delete_sequence(id: int):
+        deleted = data_access.delete_sequence(db.session, id)
+        if not deleted:
+            return Response(f'Sequence {id} does not exist', 404)
+        else:
+            event_manager.signal(server_event.SequenceDeletedEvent(id))
+            return Response(f'Sequence {id} deleted', 204)
+
+    @app.route('/sequences/play/<int:id>')
+    def play_sequence(id: int):
+        if not data_access.sequence_exists(db.session, id):
+            return Response(f'Sequence {id} does not exist', 404)
+
+        event_manager.signal(server_event.PlaySequenceEvent(id))
+        return Response('', 204)
 
     return app
