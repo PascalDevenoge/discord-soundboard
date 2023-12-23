@@ -44,6 +44,8 @@ getTracks()
                 remainder.appendChild(button);
             }
         }
+
+        initSequencer();
     });
 
 nuclearButton.addEventListener("click", () => {
@@ -74,4 +76,3 @@ canSortButton.addEventListener("click", (e) => {
 });
 
 initContextMenu();
-initSequencer();
