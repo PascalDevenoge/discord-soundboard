@@ -5,15 +5,33 @@ export function getTracks() {
 }
 
 export function getSequences() {
-    // todo wait for pascal
+    return fetch("/sequences")
+        .then(checkStatus)
+        .then(response => response.json());
+}
+
+export function createSequence(sequence) {
+    return fetch("/sequences", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(sequence)
+    })
+        .then(checkStatus)
+        .then(response => response.json());
 }
 
 export function playSequence(id) {
-    // todo wait for pascal
+    fetch(`/sequences/play/${id}`)
+        .then(checkStatus);
 }
 
 export function removeSequence(id) {
-    // todo wait for pascal
+    fetch(`/sequences/delete/${id}`, {
+        method: "POST"
+    })
+        .then(checkStatus);
 }
 
 export function playTrack(uuid, volume) {
