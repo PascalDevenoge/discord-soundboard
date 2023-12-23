@@ -211,7 +211,7 @@ def sequence_exists(session: Session, id: int) -> bool:
 
 
 def get_all_sequences(session: Session) -> list[Sequence]:
-    sequence_models = session.scalars(_SequenceModel).all()
+    sequence_models = session.scalars(select(_SequenceModel)).all()
     sequences = []
     for sequence_model in sequence_models:
         sequences.append(
