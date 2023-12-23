@@ -177,3 +177,5 @@ pyrightconfig.json
 
 tracks/
 .idea/
+
+.vscode/
