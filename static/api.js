@@ -4,6 +4,36 @@ export function getTracks() {
         .then(response => response.json());
 }
 
+export function getSequences() {
+    return fetch("/sequences")
+        .then(checkStatus)
+        .then(response => response.json());
+}
+
+export function createSequence(sequence) {
+    return fetch("/sequences/create", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(sequence)
+    })
+        .then(checkStatus)
+        .then(response => response.json());
+}
+
+export function playSequence(id) {
+    fetch(`/sequences/play/${id}`)
+        .then(checkStatus);
+}
+
+export function deleteSequence(id) {
+    fetch(`/sequences/delete/${id}`, {
+        method: "POST"
+    })
+        .then(checkStatus);
+}
+
 export function playTrack(uuid, volume) {
     fetch(`/play/${uuid}/${volume}.0`)
         .then(checkStatus);

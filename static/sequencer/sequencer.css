@@ -1,0 +1,38 @@
+a:hover { /*todo replace a with class*/
+    color: inherit;
+}
+
+.accordion-header {
+    display: flex;
+    flex-direction: row;
+}
+
+
+.sequenceEntry {
+    display: flex;
+    flex-direction: row;
+}
+
+.sequenceHeader {
+    display: flex;
+    flex-direction: row;
+}
+
+#sequenceCreator {
+    display: none;
+}
+
+.sequenceVolumeDropdown {
+    flex-grow: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sequenceEntryVolume, .sequenceEntryDelay {
+    width: 100px;
+}
+
+.select2-selection--single {
+    height: 100% !important;
+}
