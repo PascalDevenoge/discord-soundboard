@@ -33,8 +33,8 @@ class _SequenceModel(_Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
-    steps: Mapped[list["_SequenceStepModel"]] = relationship(
-        back_populates='_SequenceModel', cascade='all, delete')
+    steps: Mapped[list["_SequenceStepModel"]
+                  ] = relationship(cascade='all, delete')
 
 
 class _SequenceStepModel(_Base):
