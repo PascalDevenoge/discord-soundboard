@@ -45,6 +45,11 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
     subscription = event_manager.subscribe()
 
     while not shutdown_event.is_set():
+        if not playback_active.is_set():
+            with active_clip_list_lock:
+                if len(active_clip_list) != 0:
+                    active_clip_list = []
+
         try:
             event: server_event.Event = subscription.listen(timeout=1)
         except queue.Empty:
@@ -82,12 +87,43 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
 
                 case server_event.EventType.PLAY_SEQUENCE:
                     if playback_active.is_set():
-                        log.info(f'Should be playing sequence {event.id}')
+                        with Session(engine) as session:
+                            sequence = data_access.get_sequence(
+                                session, event.id)
+                            if sequence is None:
+                                log.info(
+                                    f'Cannot play sequence {event.id}. Sequence does not exist')
+                            else:
+                                sequence_steps = sequence.steps
+                                sequence_steps.sort(key=lambda step: step.num)
+                                clips: list[data_access.Track] = []
+                                for step in sequence_steps:
+                                    clip = data_access.get_track(
+                                        session, step.clip_id)
+                                    if clip is None:
+                                        log.warn(
+                                            f"Sequence {event.id} contains nonexistent clip {step.clip_id}. Aborting playback")
+                                        break
+                                    else:
+                                        clips.append(clip)
 
-        if not playback_active.is_set():
-            with active_clip_list_lock:
-                if len(active_clip_list) != 0:
-                    active_clip_list = []
+                                sequence_duration = 0
+                                for n in range(len(sequence_steps)):
+                                    step_end = sequence_steps[n].delay + \
+                                        int(clips[n].length * 1000)
+                                    if sequence_duration < step_end:
+                                        sequence_duration = step_end
+
+                                finished_clip = AudioSegment.silent(
+                                    duration=sequence_duration, frame_rate=48000)
+                                for n in range(len(sequence_steps)):
+                                    finished_clip = finished_clip.overlay(clips[n].samples.apply_gain(
+                                        sequence_steps[n].volume), position=sequence_steps[n].delay)
+
+                                with active_clip_list_lock:
+                                    active_clip_list.append(
+                                        finished_clip[::20]
+                                    )
 
     subscription.unsubscribe()
     log.info("Shutting down")
