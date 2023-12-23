@@ -182,15 +182,15 @@ def create_app():
     def create_sequence():
         sequence_data = request.json
         sequence = data_access.Sequence(
-            id=-1, name=sequence_data.name, steps=[])
+            id=-1, name=sequence_data['name'], steps=[])
 
         for num, step in enumerate(sequence_data.tracks):
             sequence.steps.append(data_access.SequenceStep(
                 id=-1,
                 num=num,
-                clip_id=uuid.UUID(step.uuid),
-                volume=step.volume,
-                delay=step.delay
+                clip_id=uuid.UUID(step['uuid']),
+                volume=step['volume'],
+                delay=step['delay']
             ))
 
         id = data_access.save_sequence(db.session, sequence)
