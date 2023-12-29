@@ -9,7 +9,6 @@ import data_access
 from flask import flash
 from flask import Flask
 from flask import redirect
-from flask import render_template
 from flask import request
 from flask import Response
 from flask_sqlalchemy import SQLAlchemy
@@ -22,7 +21,8 @@ log = logging.getLogger('Web API')
 
 
 def create_app():
-    app = Flask('Soundboard Web API')
+    app = Flask('Soundboard Web API',
+                static_folder="../frontend/dist", static_url_path="")
     app.secret_key = secrets.token_bytes(16)
 
     app.logger.addHandler(log)
@@ -45,7 +45,7 @@ def create_app():
 
     @app.route('/')
     def root_page():
-        return render_template('index.html')
+        return app.send_static_file('index.html')
 
     @app.route('/tracks')
     def get_tracks():

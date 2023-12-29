@@ -24,12 +24,12 @@ def on_starting(server):
     api_token = os.getenv('DISCORD_SBRD_TOKEN')
     if api_token == None:
         log.error("No discord API token set")
-        raise RuntimeError()
+        exit(1)
 
     voice_channel_name = os.getenv('DISCORD_SBRD_TARGET_CHANNEL')
     if voice_channel_name == None:
         log.error("No target voice channel set")
-        raise RuntimeError()
+        exit(1)
 
     log.info("Starting event broker")
     broker_process = multiprocessing.Process(

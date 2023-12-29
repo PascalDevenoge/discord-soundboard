@@ -41,7 +41,7 @@ RUN apt update && apt install -y libopus0 ffmpeg sqlite3 && mkdir discord-soundb
 # Leverage a bind mount to requirements.txt to avoid having to copy them into
 # into this layer.
 RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,source=requirements.txt,target=requirements.txt \
+    --mount=type=bind,source=backend/requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
 # RUN chown appuser:appuser tracks
@@ -50,7 +50,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 USER appuser
 
 # Copy the source code into the container.
-COPY . .
+COPY container_startup.sh .
+COPY ./frontend/dist ./frontend/dist
+COPY ./backend ./backend
 
 # Expose the port that the application listens on.
 EXPOSE 5123

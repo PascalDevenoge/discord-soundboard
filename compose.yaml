@@ -15,7 +15,7 @@ services:
     volumes:
       - type: bind
         source: ${DISCORD_SBRD_DATA_DIR}
-        target: /app/instance
+        target: /app/backend/instance
 
     stop_signal: SIGTERM
     init: true
