@@ -4,10 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "cd frontend && vite build",
     "watch": "cd frontend && vite build --watch --minify false",
-    "preview": "vite preview"
   },
   "dependencies": {
     "vue": "^3.3.11"
