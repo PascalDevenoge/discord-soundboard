@@ -7,6 +7,7 @@ function addTrack(id, track) {
 }
 
 function deleteTrack(id) {
+  deleteFavorite(id)
   tracks.delete(id)
 }
 
@@ -88,5 +89,20 @@ fetch('/tracks')
   })
   .then(() => {
     loadFavorites()
+  })
+  .then(() => {
+    const sseSource = new EventSource('/listen')
+
+    sseSource.addEventListener('clip-uploaded', event => {
+      const eventData = JSON.parse(event.data)
+      addTrack(eventData.id, { name: eventData.name, length: eventData.length, active: false, favorite: false})
+      console.log(`Clip ${eventData.id}: ${eventData.name} was uploaded`)
+    })
+
+    sseSource.addEventListener('clip-deleted', event => {
+      const eventData = JSON.parse(event.data)
+      deleteTrack(eventData.id)
+      console.log(`Clip ${eventData.id} was deleted`)
+    })
   })
   .catch(error => { console.error(error) })

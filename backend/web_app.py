@@ -94,7 +94,8 @@ def create_app():
         data_access.save_track(
             db.session, data_access.Track(id, name, normalized, normalized.duration_seconds))
 
-        event_manager.signal(server_event.ClipUploadedEvent(id, name))
+        event_manager.signal(server_event.ClipUploadedEvent(
+            id, name, normalized.duration_seconds))
         return Response('', 204)
 
     @app.route('/delete/<uuid:id>', methods=['POST'])
@@ -133,7 +134,7 @@ def create_app():
                             case server_event.EventType.STOP_ALL:
                                 yield format_event('all-clips-stopped', {})
                             case server_event.EventType.CLIP_UPLOADED:
-                                yield format_event('clip-uploaded', {"id": str(event.id), "name": event.name})
+                                yield format_event('clip-uploaded', {"id": str(event.id), "name": event.name, "length": event.length})
                             case server_event.EventType.CLIP_DELETED:
                                 yield format_event('clip-deleted', {"id": str(event.id)})
                             case server_event.EventType.CLIP_RENAMED:

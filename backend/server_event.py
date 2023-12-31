@@ -124,10 +124,11 @@ class StopAllEvent(Event):
 
 
 class ClipUploadedEvent(Event):
-    def __init__(self, id: UUID, name: str) -> None:
+    def __init__(self, id: UUID, name: str, length: float) -> None:
         super().__init__(EventType.CLIP_UPLOADED)
         self.id = id
         self.name = name
+        self.length = length
 
 
 class ClipDeletedEvent(Event):
