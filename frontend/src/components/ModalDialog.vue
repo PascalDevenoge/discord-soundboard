@@ -1,12 +1,12 @@
 <script setup>
 const props = defineProps({
   title: String,
-  okAction: Function,
+  okAction: Function
 })
 
 const eventEmit = defineEmits(['close'])
 
-function okHandler() {
+function okHandler () {
   props.okAction()
   eventEmit('close')
 }

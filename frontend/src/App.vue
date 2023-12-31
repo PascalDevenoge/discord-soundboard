@@ -1,21 +1,22 @@
 <script setup>
 import { ref } from 'vue'
 
-import FavoritesContainer from './components/FavoritesContainer.vue';
-import SoundboardContainer from './components/SoundboardContainer.vue';
-import HeaderButton from './components/HeaderButton.vue';
-import Modal from './components/Modal.vue';
+import FavoritesContainer from './components/FavoritesContainer.vue'
+import SoundboardContainer from './components/SoundboardContainer.vue'
+import HeaderButton from './components/HeaderButton.vue'
+import ModalDialog from './components/ModalDialog.vue'
 
-function backendRequest(target) {
+function backendRequest (target) {
   fetch(target)
     .then(response => {
       if (!response.ok) {
+        // eslint-disable-next-line no-undef
         console.error(`Request to ${props.target_route} failed. ${response.statusText}: ${response.body}`)
       }
     })
 }
 
-function uploadFile() {
+function uploadFile () {
   const formData = new FormData()
   formData.append('file', document.getElementById('uploadClipFile').files[0])
   fetch('/upload', {
@@ -44,8 +45,8 @@ const uploadDialogOpen = ref(false)
       <FavoritesContainer :name="'Favorites'" />
       <SoundboardContainer :name="'Uncategorized'" />
     </div>
-    <Modal v-if="uploadDialogOpen" @close="uploadDialogOpen = false" :title="'Upload clip'" :ok-action="uploadFile">
+    <ModalDialog v-if="uploadDialogOpen" @close="uploadDialogOpen = false" :title="'Upload clip'" :ok-action="uploadFile">
       <input id="uploadClipFile" class="my-3 block w-full h-10 border border-gray-300 rounded-lg file:rounded-l-lg file:border-none file:text-white file:font-semibold file:bg-blue-600 file:hover:bg-blue-500 file:h-10 file:w-24 file:mr-3" type="file"/>
-    </Modal>
+    </ModalDialog>
   </div>
 </template>

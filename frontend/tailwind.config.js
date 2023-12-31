@@ -1,11 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
+    './index.html',
+    './src/**/*.{vue,js,ts,jsx,tsx}'
   ],
   theme: {
-    extend: {},
+    extend: {}
   },
   plugins: [],
   safelist: [
@@ -13,7 +13,7 @@ export default {
     // Since these classes are never fully spelled out in any code, tailwind will not
     // include them in the build otherwise.
     {
-      pattern: /bg-(blue|red)-(500|600)/,
-    },
+      pattern: /bg-(blue|red)-(500|600)/
+    }
   ]
 }

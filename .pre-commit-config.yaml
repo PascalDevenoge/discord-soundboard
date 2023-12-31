@@ -16,3 +16,16 @@ repos:
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v8.56.0
+    hooks:
+      - id: eslint
+        files: \.(js|vue)?$
+        types: [file]
+        additional_dependencies:
+          - eslint-plugin-vue@latest
+          - eslint-config-standard@^17.1.0
+          - eslint-plugin-import@^2.29.1
+          - eslint-plugin-n@^16.6.0
+          - eslint-plugin-promise@^6.1.1
+          - eslint-plugin-vue@^9.19.2

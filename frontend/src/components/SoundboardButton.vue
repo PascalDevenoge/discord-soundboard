@@ -1,16 +1,16 @@
 <script setup>
-import TrackRepository from '@/assets/TrackRepository';
+import TrackRepository from '@/assets/TrackRepository'
 
 const props = defineProps({
   trackId: String,
   rightClickAction: Function
 })
 
-function play() {
+function play () {
   fetch(`/play/${props.trackId}/0.0`)
 }
 
-function rightClickEventHandler(event) {
+function rightClickEventHandler (event) {
   event.preventDefault()
   props.rightClickAction(props.trackId)
 }

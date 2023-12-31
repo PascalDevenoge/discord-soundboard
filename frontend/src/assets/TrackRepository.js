@@ -1,30 +1,30 @@
 import { reactive } from 'vue'
 
-let tracks = reactive(new Map())
+const tracks = reactive(new Map())
 
-function addTrack(id, track) {
+function addTrack (id, track) {
   tracks.set(id, track)
 }
 
-function deleteTrack(id) {
+function deleteTrack (id) {
   deleteFavorite(id)
   tracks.delete(id)
 }
 
-function hasTrack(id) {
+function hasTrack (id) {
   return tracks.has(id)
 }
 
-function getTrack(id) {
+function getTrack (id) {
   const track = tracks.get(id)
-  return track == undefined ? null : track
+  return track === undefined ? null : track
 }
 
-function getAllTrackIds() {
+function getAllTrackIds () {
   return [...tracks.keys()]
 }
 
-function addFavorite(id) {
+function addFavorite (id) {
   const track = getTrack(id)
   if (track == null) return
 
@@ -32,7 +32,7 @@ function addFavorite(id) {
   updateFavoritesStorage()
 }
 
-function deleteFavorite(id) {
+function deleteFavorite (id) {
   const track = getTrack(id)
   if (track == null) return
 
@@ -47,11 +47,11 @@ export default {
   getTrack,
   getAllTrackIds,
   addFavorite,
-  deleteFavorite,
+  deleteFavorite
 }
 
-function updateFavoritesStorage() {
-  let favoriteIds = []
+function updateFavoritesStorage () {
+  const favoriteIds = []
   for (const [id, track] of tracks.entries()) {
     if (track.favorite) {
       favoriteIds.push(id)
@@ -60,7 +60,7 @@ function updateFavoritesStorage() {
   localStorage.setItem('favorites', JSON.stringify(favoriteIds))
 }
 
-function loadFavorites() {
+function loadFavorites () {
   const storedData = localStorage.getItem('favorites')
   if (storedData == null) {
     localStorage.setItem('favorites', [])
@@ -95,7 +95,7 @@ fetch('/tracks')
 
     sseSource.addEventListener('clip-uploaded', event => {
       const eventData = JSON.parse(event.data)
-      addTrack(eventData.id, { name: eventData.name, length: eventData.length, active: false, favorite: false})
+      addTrack(eventData.id, { name: eventData.name, length: eventData.length, active: false, favorite: false })
       console.log(`Clip ${eventData.id}: ${eventData.name} was uploaded`)
     })
 
