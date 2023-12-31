@@ -20,6 +20,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Build front-end
+        uses: actions/setup-node@v4
+        with:
+          node-version: latest
+
+      - run: npm ci
+      - run: npm run build
+
       - name: Login to container registry
         uses: docker/login-action@v3
         with:
