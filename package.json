@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "cd frontend && vite build",
-    "watch": "cd frontend && vite build --watch --minify false",
+    "watch": "cd frontend && vite build --watch --minify false"
   },
   "dependencies": {
     "vue": "^3.3.11"
