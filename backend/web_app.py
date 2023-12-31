@@ -6,9 +6,7 @@ from typing import Any
 import uuid
 
 import data_access
-from flask import flash
 from flask import Flask
-from flask import redirect
 from flask import request
 from flask import Response
 from flask_sqlalchemy import SQLAlchemy
@@ -74,8 +72,7 @@ def create_app():
     def upload_clip():
         if 'file' not in request.files or request.files['file'].filename == '':
             log.warn(f'Error during file upload')
-            flash('Missing or broken file was uploaded', 'error')
-            return redirect('/')
+            return Response(400, 'Error during file upload')
 
         id = uuid.uuid4()
         file = request.files['file']
@@ -98,7 +95,7 @@ def create_app():
             db.session, data_access.Track(id, name, normalized, normalized.duration_seconds))
 
         event_manager.signal(server_event.ClipUploadedEvent(id, name))
-        return redirect('/')
+        return Response('', 204)
 
     @app.route('/delete/<uuid:id>', methods=['POST'])
     def delete_clip(id: uuid.UUID):
