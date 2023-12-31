@@ -115,7 +115,7 @@ def create_app():
         return Response(f'Track {str(id)} renamed to {new_name}', 204)
 
     def format_event(event_name: str, payload: dict[str, Any]):
-        return f'event: {event_name}\ndata: {json.dumps(payload)}\n\n'
+        return f'event: {event_name}\ndata: {json.dumps(payload)}\nretry: 5000\n\n'
 
     @app.route('/listen')
     def event_listen():
