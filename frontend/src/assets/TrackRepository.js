@@ -84,7 +84,7 @@ fetch('/tracks')
   })
   .then(tracks => {
     for (const track of tracks) {
-      addTrack(track.id, { name: track.name, length: track.length, active: false, favorite: false })
+      addTrack(track.id, { name: track.name, length: track.length, active: false, timeout: null, favorite: false })
     }
   })
   .then(() => {
@@ -95,7 +95,7 @@ fetch('/tracks')
 
     sseSource.addEventListener('clip-uploaded', event => {
       const eventData = JSON.parse(event.data)
-      addTrack(eventData.id, { name: eventData.name, length: eventData.length, active: false, favorite: false })
+      addTrack(eventData.id, { name: eventData.name, length: eventData.length, active: false, timeout: null, favorite: false })
       console.log(`Clip ${eventData.id}: ${eventData.name} was uploaded`)
     })
 
@@ -103,6 +103,44 @@ fetch('/tracks')
       const eventData = JSON.parse(event.data)
       deleteTrack(eventData.id)
       console.log(`Clip ${eventData.id} was deleted`)
+    })
+
+    sseSource.addEventListener('clip-played', event => {
+      const eventData = JSON.parse(event.data)
+      const track = getTrack(eventData.id)
+
+      if (track != null) {
+        clearTimeout(track.timeout)
+        track.active = true
+        track.timeout = setTimeout(() => {
+          track.active = false
+        }, track.length * 1000)
+      }
+    })
+
+    sseSource.addEventListener('all-clips-stopped', _ => {
+      for (const [, data] of tracks.entries()) {
+        clearTimeout(data.timeout)
+        data.active = false
+      }
+    })
+
+    sseSource.addEventListener('all-clips-played', _ => {
+      for (const [, data] of tracks.entries()) {
+        clearTimeout(data.timeout)
+        data.active = true
+        data.timeout = setTimeout(() => {
+          data.active = false
+        }, data.length * 1000)
+      }
+    })
+
+    sseSource.addEventListener('clip-renamed', event => {
+      const eventData = JSON.parse(event.data)
+      const track = getTrack(eventData.id)
+      if (track != null) {
+        track.name = eventData.new_name
+      }
     })
   })
   .catch(error => { console.error(error) })
