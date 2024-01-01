@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 
 const tracks = reactive(new Map())
 
@@ -7,7 +7,6 @@ function addTrack (id, track) {
 }
 
 function deleteTrack (id) {
-  deleteFavorite(id)
   tracks.delete(id)
 }
 
@@ -24,40 +23,12 @@ function getAllTrackIds () {
   return [...tracks.keys()]
 }
 
-function addFavorite (id) {
-  const track = getTrack(id)
-  if (track == null) return
-
-  track.favorite = true
-  updateFavoritesStorage()
-}
-
-function deleteFavorite (id) {
-  const track = getTrack(id)
-  if (track == null) return
-
-  track.favorite = false
-  updateFavoritesStorage()
-}
-
 export default {
   addTrack,
   deleteTrack,
   hasTrack,
   getTrack,
-  getAllTrackIds,
-  addFavorite,
-  deleteFavorite
-}
-
-function updateFavoritesStorage () {
-  const favoriteIds = []
-  for (const [id, track] of tracks.entries()) {
-    if (track.favorite) {
-      favoriteIds.push(id)
-    }
-  }
-  localStorage.setItem('favorites', JSON.stringify(favoriteIds))
+  getAllTrackIds
 }
 
 function loadFavorites () {
@@ -89,6 +60,17 @@ fetch('/tracks')
   })
   .then(() => {
     loadFavorites()
+  })
+  .then(() => {
+    watch(tracks, async () => {
+      const favoriteIds = []
+      for (const [id, track] of tracks.entries()) {
+        if (track.favorite) {
+          favoriteIds.push(id)
+        }
+      }
+      localStorage.setItem('favorites', JSON.stringify(favoriteIds))
+    })
   })
   .then(() => {
     const sseSource = new EventSource('/listen')

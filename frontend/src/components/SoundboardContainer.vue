@@ -12,7 +12,7 @@ const nonFavorites = computed(() => {
 })
 
 function buttonRightClickHandler (id) {
-  TrackRepository.addFavorite(id)
+  TrackRepository.getTrack(id).favorite = true
 }
 </script>
 

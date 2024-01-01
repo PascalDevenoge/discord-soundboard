@@ -12,7 +12,7 @@ const allFavorites = computed(() => {
 })
 
 function buttonRightClickHandler (id) {
-  TrackRepository.deleteFavorite(id)
+  TrackRepository.getTrack(id).favorite = false
 }
 </script>
 

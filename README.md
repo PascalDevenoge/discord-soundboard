@@ -2,9 +2,9 @@
 
 ## Important!
 
-This bot is a quickly thrown together experiment without any concern for security or robustness. The web server
+This bot is a quickly thrown together experiment without any concern for security or robustness. *The web server
 should only ever be run behind a VPN that is only accessible to trustworthy users, and never exposed to the open
-internet!
+internet!*
 
 While the code is publicly available, we cannot accept contributions, issues or requests and the project should
 be regarded as essentially unmaintained at this point.
@@ -27,7 +27,7 @@ To run the bot locally for development, follow the following steps:
 - Create and activate Python virtual environment
 - Install server dependencies from requirements.txt file
 - Run ```npm run build``` to build the front-end
-- __Optionally:__ Run ```npm run watch``` to rebuild the front-end files on changes of the code
+- **Optionally:** Run ```npm run watch``` to rebuild the front-end files on changes of the code
 - Run the ```run.sh``` script with the Discord API token as its argument to startup the bot server
 
 The web server will start to listen on ```localhost:5124```
