@@ -212,3 +212,5 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+deploy.sh
