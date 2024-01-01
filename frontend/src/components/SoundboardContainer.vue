@@ -27,6 +27,7 @@ const selectedTracks = computed(() => {
     <div class="flex justify-center">
       <input v-if="searchable" v-model="searchTerm" placeholder="Search for clip name..." class="align-middle w-80 h-10 text-lg mb-6 py-2 px-4 border border-gray-300 rounded-xl">
     </div>
+    <p v-if="selectedTracks.length === 0" class="text-center text-lg m-4 text-gray-500">No tracks found...</p>
     <div class="flex flex-col md:flex-row justify-center flex-wrap">
       <SoundboardButton @rightClick="(id, x, y) => eventEmit('buttonRightClick', id, x, y)" v-for="id of selectedTracks" :key="id" :trackId="id"/>
     </div>
