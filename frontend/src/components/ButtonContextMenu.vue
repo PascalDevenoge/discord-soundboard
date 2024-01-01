@@ -26,16 +26,16 @@ const eventEmit = defineEmits('openSettings')
 
 <template>
   <div id="container" class="absolute m-0 rounded-xl border border-gray-400 bg-gray-200">
-    <div @click="favoritesHandler" class="h-12 py-2 px-5 hover:bg-gray-300 rounded-t-xl hover:cursor-pointer">
-      <p class="align-middle text-xl">{{ isFavorite ? 'Remove from favorites' : 'Add to favorites' }}</p>
+    <div @click="favoritesHandler" class="h-11 py-2 px-5 hover:bg-gray-300 rounded-t-xl hover:cursor-pointer">
+      <p class="align-middle text-lg">{{ isFavorite ? 'Remove from favorites' : 'Add to favorites' }}</p>
     </div>
     <hr class="h-px border-x border-gray-300"/>
-    <div @click="deleteHandler" class="h-12 py-2 px-5 hover:bg-gray-300 hover:cursor-pointer">
-      <p class="align-middle text-xl">Delete clip</p>
+    <div @click="deleteHandler" class="h-11 py-2 px-5 hover:bg-gray-300 hover:cursor-pointer">
+      <p class="align-middle text-lg">Delete clip</p>
     </div>
     <hr class="h-px border-x border-gray-300"/>
-    <div @click="eventEmit('openSettings', props.trackId)" class="h-12 py-2 px-5 hover:bg-gray-300 rounded-b-xl hover:cursor-pointer">
-      <p class="align-middle text-xl">Settings</p>
+    <div @click="eventEmit('openSettings', props.trackId)" class="h-11 py-2 px-5 hover:bg-gray-300 rounded-b-xl hover:cursor-pointer">
+      <p class="align-middle text-lg">Settings</p>
     </div>
   </div>
 </template>
