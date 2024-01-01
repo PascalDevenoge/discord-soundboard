@@ -24,8 +24,9 @@ const selectedTracks = computed(() => {
 <template>
   <div class="mb-5">
     <p class="text-3xl text-center mb-8">{{ props.name }}</p>
-    <div class="flex justify-center">
-      <input type="search" v-if="searchable" v-model="searchTerm" placeholder="Search for clip name..." class="align-middle w-80 h-10 text-lg mb-6 py-2 px-4 border border-gray-300 rounded-xl">
+    <div v-if="searchable" class="flex flex-row justify-center">
+      <input type="text" v-model="searchTerm" placeholder="Search for clip name..." class=" w-80 h-10 text-lg mb-6 py-2 px-4 border border-gray-300 rounded-xl">
+      <button @click="searchTerm = ''" class="h-10 bg-blue-600 hover:bg-blue-500 rounded-xl text-white font-bold ml-2 px-5">Clear</button>
     </div>
     <p v-if="selectedTracks.length === 0" class="text-center text-lg m-4 text-gray-500">No tracks found...</p>
     <div class="flex flex-col md:flex-row justify-center flex-wrap">

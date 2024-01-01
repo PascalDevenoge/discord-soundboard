@@ -34,7 +34,7 @@ const eventEmit = defineEmits('openSettings')
       <p class="align-middle text-lg">Stop playback</p>
     </div>
     <hr class="h-px border-x border-gray-300"/>
-    <div @click="favoritesHandler" class="h-11 py-2 px-5 hover:bg-gray-300 rounded-t-xl hover:cursor-pointer">
+    <div @click="favoritesHandler" class="h-11 py-2 px-5 hover:bg-gray-300 hover:cursor-pointer">
       <p class="align-middle text-lg">{{ isFavorite ? 'Remove from favorites' : 'Add to favorites' }}</p>
     </div>
     <hr class="h-px border-x border-gray-300"/>
