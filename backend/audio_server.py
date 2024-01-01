@@ -18,7 +18,7 @@ FRAME_LENGTH: int = int(48000 * 0.02)
 
 log = logging.getLogger('audio-server')
 
-active_clip_list: list[Generator] = []
+active_clip_list: list[tuple[uuid.UUID, Generator]] = []
 active_clip_list_lock = threading.Lock()
 
 
@@ -69,7 +69,7 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
                             else:
                                 with active_clip_list_lock:
                                     active_clip_list.append(
-                                        track.samples.apply_gain(event.volume)[::20])
+                                        (event.id, track.samples.apply_gain(event.volume)[::20]))
 
                 case server_event.EventType.PLAY_ALL:
                     if playback_active.is_set():
@@ -78,12 +78,22 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
                             with active_clip_list_lock:
                                 for track in tracks:
                                     active_clip_list.append(
-                                        track.samples[::20])
+                                        (track.id, track.samples[::20]))
 
                 case server_event.EventType.STOP_ALL:
                     if playback_active.is_set():
                         with active_clip_list_lock:
                             active_clip_list = []
+
+                case server_event.EventType.STOP_CLIP:
+                    remaining_clips: list[tuple[uuid.UUID, Generator]] = []
+
+                    with active_clip_list_lock:
+                        for (id, samples) in active_clip_list:
+                            if id != event.id:
+                                remaining_clips.append((id, samples))
+
+                        active_clip_list = remaining_clips
 
                 case server_event.EventType.PLAY_SEQUENCE:
                     if playback_active.is_set():
@@ -122,7 +132,7 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
 
                                 with active_clip_list_lock:
                                     active_clip_list.append(
-                                        finished_clip[::20]
+                                        (event.id, finished_clip[::20])
                                     )
 
     subscription.unsubscribe()
@@ -145,14 +155,15 @@ class ClipMixingAudioSource(discord.AudioSource):
             duration=20, frame_rate=48000).set_sample_width(2).set_channels(2)
 
         with active_clip_list_lock:
-            unfinished_clips: list[Generator] = []
-            for active_track in active_clip_list:
+            unfinished_clips: list[tuple[uuid.UUID, Generator]] = []
+            for (id, active_track_samples) in active_clip_list:
                 try:
-                    finished_frame = finished_frame.overlay(next(active_track))
+                    finished_frame = finished_frame.overlay(
+                        next(active_track_samples))
                 except StopIteration:
                     continue
                 else:
-                    unfinished_clips.append(active_track)
+                    unfinished_clips.append((id, active_track_samples))
             active_clip_list = unfinished_clips
 
         return finished_frame.raw_data

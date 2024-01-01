@@ -99,6 +99,7 @@ class EventType(Enum):
     PLAY_SEQUENCE = 7,
     SEQUENCE_CREATED = 8,
     SEQUENCE_DELETED = 9,
+    STOP_CLIP = 10,
 
 
 class Event(ABC):
@@ -160,4 +161,10 @@ class SequenceDeletedEvent(Event):
 class PlaySequenceEvent(Event):
     def __init__(self, id: int) -> None:
         super().__init__(EventType.PLAY_SEQUENCE)
+        self.id = id
+
+
+class StopClipEvent(Event):
+    def __init__(self, id: UUID) -> None:
+        super().__init__(EventType.STOP_CLIP)
         self.id = id

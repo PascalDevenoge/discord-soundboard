@@ -124,5 +124,14 @@ fetch('/tracks')
         track.name = eventData.new_name
       }
     })
+
+    sseSource.addEventListener('clip-stopped', event => {
+      const eventData = JSON.parse(event.data)
+      const track = getTrack(eventData.id)
+      if (track != null) {
+        clearTimeout(track.timeout)
+        track.active = false
+      }
+    })
   })
   .catch(error => { console.error(error) })

@@ -21,11 +21,19 @@ function deleteHandler () {
   fetch('/delete/' + props.trackId, { method: 'POST' })
 }
 
+function stopHandler () {
+  fetch('/stop/' + props.trackId)
+}
+
 const eventEmit = defineEmits('openSettings')
 </script>
 
 <template>
   <div id="container" class="absolute m-0 rounded-xl border border-gray-400 bg-gray-200">
+    <div @click="stopHandler" class="h-11 py-2 px-5 hover:bg-gray-300 rounded-t-xl hover:cursor-pointer">
+      <p class="align-middle text-lg">Stop playback</p>
+    </div>
+    <hr class="h-px border-x border-gray-300"/>
     <div @click="favoritesHandler" class="h-11 py-2 px-5 hover:bg-gray-300 rounded-t-xl hover:cursor-pointer">
       <p class="align-middle text-lg">{{ isFavorite ? 'Remove from favorites' : 'Add to favorites' }}</p>
     </div>

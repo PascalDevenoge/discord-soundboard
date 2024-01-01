@@ -63,9 +63,14 @@ def create_app():
         event_manager.signal(server_event.PlayAllClipsEvent())
         return Response('', 204)
 
-    @app.route('/stop')
+    @app.route('/stop/all')
     def stop_playback():
         event_manager.signal(server_event.StopAllEvent())
+        return Response('', 204)
+
+    @app.route('/stop/<uuid:id>')
+    def stop_clip(id: uuid.UUID):
+        event_manager.signal(server_event.StopClipEvent(id))
         return Response('', 204)
 
     @app.route('/upload', methods=['POST'])
@@ -133,6 +138,8 @@ def create_app():
                                 yield format_event('all-clips-played', {})
                             case server_event.EventType.STOP_ALL:
                                 yield format_event('all-clips-stopped', {})
+                            case server_event.EventType.STOP_CLIP:
+                                yield format_event('clip-stopped', {'id': str(event.id)})
                             case server_event.EventType.CLIP_UPLOADED:
                                 yield format_event('clip-uploaded', {"id": str(event.id), "name": event.name, "length": event.length})
                             case server_event.EventType.CLIP_DELETED:

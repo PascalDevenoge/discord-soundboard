@@ -67,7 +67,7 @@ const settingsDialogTrackTitle = computed(() => 'Settings for ' + TrackRepositor
     <p class="text-4xl md:text-6xl italic text-center py-6 md:py-12">The ultimate Discord Soundboard</p>
     <div class="flex md:flex-row flex-col justify-center">
       <HeaderButton @click="backendRequest('/play/all')">The nuclear option</HeaderButton>
-      <HeaderButton @click="backendRequest('/stop')" :highlighted="true">Stop all</HeaderButton>
+      <HeaderButton @click="backendRequest('/stop/all')" :highlighted="true">Stop all</HeaderButton>
       <HeaderButton @click="uploadDialogOpen = true">Upload</HeaderButton>
     </div>
     <div class="pt-16 grid justify-center grid-cols-1 md:grid-cols-1 gap-10">
