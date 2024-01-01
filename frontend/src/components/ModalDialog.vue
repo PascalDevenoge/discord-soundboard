@@ -13,14 +13,14 @@ function okHandler () {
 </script>
 
 <template>
-  <div @click="eventEmit('click')" class="fixed top-0 left-0 w-screen h-screen bg-gray-400/50">
+  <div @click="eventEmit('close')" class="fixed top-0 left-0 w-screen h-screen bg-gray-400/50">
     <div @click.stop class="fixed bg-white top-1/4 left-2/4 -translate-x-2/4 rounded-xl border border-gray-400">
       <div
         class="grid gap-y-1 divide-y divide-gray-400 items-stretch justify-stretch content-stretch min-w-96 min-h-12 m-6">
         <div class="min-h-8">
           <p class="font-bold text-lg align-middle">{{ props.title }}</p>
         </div>
-        <div>
+        <div class="py-3">
           <slot/>
         </div>
         <div class="min-h-8">

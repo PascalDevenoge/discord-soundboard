@@ -4,23 +4,22 @@ import TrackRepository from '../assets/TrackRepository'
 import SoundboardButton from './SoundboardButton.vue'
 
 const props = defineProps({
-  name
+  name: String,
+  selectionPredicate: Function
 })
 
-const nonFavorites = computed(() => {
-  return TrackRepository.getAllTrackIds().filter(id => !TrackRepository.getTrack(id).favorite)
-})
+const eventEmit = defineEmits('buttonRightClick')
 
-function buttonRightClickHandler (id) {
-  TrackRepository.getTrack(id).favorite = true
-}
+const selectedTracks = computed(() => {
+  return TrackRepository.getAllTrackIds().filter(id => props.selectionPredicate(id))
+})
 </script>
 
 <template>
   <div>
     <p class="text-3xl text-center pb-8">{{ props.name }}</p>
     <div class="flex flex-col md:flex-row justify-center flex-wrap">
-      <SoundboardButton v-for="id of nonFavorites" :key="id" :trackId="id" :right-click-action="buttonRightClickHandler" />
+      <SoundboardButton @rightClick="(id, x, y) => eventEmit('buttonRightClick', id, x, y)" v-for="id of selectedTracks" :key="id" :trackId="id"/>
     </div>
   </div>
 </template>
