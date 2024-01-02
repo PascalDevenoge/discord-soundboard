@@ -1,5 +1,6 @@
 import json
 import logging
+from math import ceil
 from queue import Empty
 import secrets
 from typing import Any
@@ -29,6 +30,9 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
     db.init_app(app)
     with app.app_context():
+        @db.event.listens_for(db.engine, 'connect')
+        def foreign_key_pragma_on_connect_callback(connection, _):
+            connection.execute('pragma foreign_keys=ON')
         db.create_all()
 
     event_manager = server_event.get_event_manager()
@@ -47,12 +51,12 @@ def create_app():
 
     @app.route('/tracks')
     def get_tracks():
-        track_infos = data_access.get_all_track_info(db.session)
-        return [{'id': track_info.id, 'name': track_info.name, 'length': track_info.length} for track_info in track_infos]
+        track_infos = data_access.get_all_clip_infos(db.session)
+        return [{'id': track_info.id, 'name': track_info.name, 'length': track_info.length, 'volume': track_info.volume} for track_info in track_infos]
 
     @app.route('/play/<uuid:id>/<float(signed=True, max=30.0):volume>')
     def play_clip(id: uuid.UUID, volume: float):
-        if not data_access.track_exists(db.session, id):
+        if not data_access.clip_exists(db.session, id):
             return Response(f'Track {id} does not exist', 404)
 
         event_manager.signal(server_event.PlayClipEvent(id, volume))
@@ -96,16 +100,23 @@ def create_app():
         trimmed = trim_leading(trim_end(resampled))
         normalized: pydub.AudioSegment = normalize(trimmed, 15.0)
 
-        data_access.save_track(
-            db.session, data_access.Track(id, name, normalized, normalized.duration_seconds))
+        try:
+            data_access.save_clip(
+                db.session, data_access.Clip(id, name, ceil(normalized.duration_seconds * 1000), 0.0, normalized))
+        except data_access.NameDuplicateException:
+            return Response(f'ClipNameDuplicated', 409)
 
         event_manager.signal(server_event.ClipUploadedEvent(
-            id, name, normalized.duration_seconds))
+            id, name, ceil(normalized.duration_seconds * 1000)))
         return Response('', 204)
 
     @app.route('/delete/<uuid:id>', methods=['POST'])
     def delete_clip(id: uuid.UUID):
-        track_deleted = data_access.delete_track(db.session, id)
+        try:
+            track_deleted = data_access.delete_clip(db.session, id)
+        except data_access.ClipUsedException as e:
+            return Response(f'ClipStillUsedError {e.sequence_id}', 409)
+
         if not track_deleted:
             return Response(f'Track {str(id)} does not exist', 404)
         event_manager.signal(server_event.ClipDeletedEvent(id))
@@ -113,7 +124,9 @@ def create_app():
 
     @app.route('/rename/<uuid:id>/<string:new_name>', methods=['POST'])
     def rename_clip(id: uuid.UUID, new_name: str):
-        clip_renamed = data_access.update_track_name(db.session, id, new_name)
+        clip_info = data_access.get_clip_info(db.session, id)
+        clip_info.name = new_name
+        clip_renamed = data_access.update_clip_info(db.session, clip_info)
         if not clip_renamed:
             return Response(f'Track {str(id)} does not exist', 404)
         event_manager.signal(server_event.ClipRenamedEvent(id, new_name))
@@ -171,11 +184,13 @@ def create_app():
                 {
                     'id': sequence.id,
                     'name': sequence.name,
+                    'length': sequence.length,
                     'tracks': [
                         {
-                            'uuid': step.clip_id,
-                            'volume': step.volume,
+                            'position': step.position,
                             'delay': step.delay,
+                            'volume': step.volume,
+                            'clip_id': step.clip_id,
                         } for step in sequence.steps
                     ]
                 }
@@ -187,18 +202,31 @@ def create_app():
     def create_sequence():
         sequence_data = request.json
         sequence = data_access.Sequence(
-            id=-1, name=sequence_data['name'], steps=[])
+            id=uuid.uuid4(), name=sequence_data['name'], steps=[])
 
-        for num, step in enumerate(sequence_data['tracks']):
-            sequence.steps.append(data_access.SequenceStep(
-                id=-1,
-                num=num,
-                clip_id=uuid.UUID(step['uuid']),
+        length = 0
+
+        for position, step in enumerate(sequence_data['tracks']):
+            step = data_access.SequenceStep(
+                position=position,
+                delay=step['delay'],
                 volume=step['volume'],
-                delay=step['delay']
-            ))
+                clip_id=uuid.UUID(step['clip_id']),
+            )
+            sequence.steps.append(step)
+            step_end = step.delay + \
+                data_access.get_clip_info(db.session, step.clip_id).length
+            if step_end > length:
+                length = step_end
+        sequence.length = length
 
-        id = data_access.save_sequence(db.session, sequence)
+        try:
+            data_access.save_sequence(db.session, sequence)
+        except data_access.NameDuplicateException:
+            return Response('SequenceNameDuplicated', 409)
+        except data_access.ClipDoesNotExistException as e:
+            return Response(f'SequenceReferencesUnknownClip {e.clip_id}', 400)
+
         event_manager.signal(
             server_event.SequenceCreatedEvent(id, sequence.name))
         return Response(str(id), 201)

@@ -96,7 +96,7 @@ fetch('/tracks')
         track.active = true
         track.timeout = setTimeout(() => {
           track.active = false
-        }, track.length * 1000)
+        }, track.length)
       }
     })
 
@@ -113,7 +113,7 @@ fetch('/tracks')
         data.active = true
         data.timeout = setTimeout(() => {
           data.active = false
-        }, data.length * 1000)
+        }, data.length)
       }
     })
 

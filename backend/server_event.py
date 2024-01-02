@@ -146,20 +146,20 @@ class ClipRenamedEvent(Event):
 
 
 class SequenceCreatedEvent(Event):
-    def __init__(self, id: int, name: str) -> None:
+    def __init__(self, id: UUID, name: str) -> None:
         super().__init__(EventType.SEQUENCE_CREATED)
         self.id = id
         self.name = name
 
 
 class SequenceDeletedEvent(Event):
-    def __init__(self, id: int) -> None:
+    def __init__(self, id: UUID) -> None:
         super().__init__(EventType.SEQUENCE_DELETED)
         self.id = id
 
 
 class PlaySequenceEvent(Event):
-    def __init__(self, id: int) -> None:
+    def __init__(self, id: UUID) -> None:
         super().__init__(EventType.PLAY_SEQUENCE)
         self.id = id
 

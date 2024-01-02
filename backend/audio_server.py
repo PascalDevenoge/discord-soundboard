@@ -62,7 +62,7 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
                 case server_event.EventType.PLAY_CLIP:
                     if playback_active.is_set():
                         with Session(engine) as session:
-                            track = data_access.get_track(session, event.id)
+                            track = data_access.get_clip(session, event.id)
                             if track is None:
                                 log.info(
                                     f"Cannot play track {event.id}. Track not in database")
@@ -74,7 +74,7 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
                 case server_event.EventType.PLAY_ALL:
                     if playback_active.is_set():
                         with Session(engine) as session:
-                            tracks = data_access.get_all_tracks(session)
+                            tracks = data_access.get_all_clips(session)
                             with active_clip_list_lock:
                                 for track in tracks:
                                     active_clip_list.append(
@@ -105,10 +105,11 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
                                     f'Cannot play sequence {event.id}. Sequence does not exist')
                             else:
                                 sequence_steps = sequence.steps
-                                sequence_steps.sort(key=lambda step: step.num)
-                                clips: list[data_access.Track] = []
+                                sequence_steps.sort(
+                                    key=lambda step: step.position)
+                                clips: list[data_access.Clip] = []
                                 for step in sequence_steps:
-                                    clip = data_access.get_track(
+                                    clip = data_access.get_clip(
                                         session, step.clip_id)
                                     if clip is None:
                                         log.warn(
@@ -120,7 +121,7 @@ def command_processor_main(shutdown_event: multiprocessing.Event, playback_activ
                                 sequence_duration = 0
                                 for n in range(len(sequence_steps)):
                                     step_end = sequence_steps[n].delay + \
-                                        int(clips[n].length * 1000)
+                                        int(clips[n].length)
                                     if sequence_duration < step_end:
                                         sequence_duration = step_end
 
