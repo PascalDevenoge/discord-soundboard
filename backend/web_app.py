@@ -131,7 +131,7 @@ def create_app():
         if not clip_renamed:
             return Response(f'Track {escape(str(id))} does not exist', 404)
         event_manager.signal(server_event.ClipRenamedEvent(id, new_name))
-        return Response(f'Track {escape(str(id))} renamed to {new_name}', 204)
+        return Response(f'Track {escape(str(id))} renamed to {escape(new_name)}', 204)
 
     def format_event(event_name: str, payload: dict[str, Any]):
         return f'event: {event_name}\ndata: {json.dumps(payload)}\nretry: 5000\n\n'
