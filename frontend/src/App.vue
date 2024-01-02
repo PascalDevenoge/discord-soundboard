@@ -11,8 +11,7 @@ function backendRequest (target) {
   fetch(target)
     .then(response => {
       if (!response.ok) {
-        // eslint-disable-next-line no-undef
-        console.error(`Request to ${props.target_route} failed. ${response.statusText}: ${response.body}`)
+        console.error(`Request to ${target} failed. ${response.statusText}: ${response.body}`)
       }
     })
 }
