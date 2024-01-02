@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from io import BytesIO
 import uuid
 
 from pydub import AudioSegment
@@ -167,19 +168,13 @@ def get_clip(session: Session, id: uuid.UUID) -> Clip | None:
     if clip_model is None:
         return None
 
-    samples = AudioSegment(
-        clip_model.samples,
-        sample_width=2,
-        frame_rate=48000,
-        channels=2
-    )
-
     return Clip(
         id,
         clip_model.name,
         clip_model.length,
         clip_model.volume,
-        samples
+        AudioSegment.from_file(BytesIO(clip_model.samples),
+                               format='ogg', codec='libopus')
     )
 
 
@@ -187,20 +182,14 @@ def get_all_clips(session: Session) -> list[Clip]:
     results = session.scalars(select(_ClipModel))
     clips = []
     for clip_model in results:
-        samples = AudioSegment(
-            clip_model.samples,
-            sample_width=2,
-            frame_rate=48000,
-            channels=2
-        )
-
         clips.append(
             Clip(
                 clip_model.id,
                 clip_model.name,
                 clip_model.length,
                 clip_model.volume,
-                samples
+                AudioSegment.from_file(
+                    BytesIO(clip_model.samples), format='ogg', codec='libopus')
             )
         )
 
@@ -236,12 +225,16 @@ def save_clip(session: Session, clip: Clip) -> None:
     if session.query(exists(_ClipModel).where(_ClipModel.name == clip.name)).scalar():
         raise NameDuplicateException()
 
+    byte_stream = BytesIO()
+    clip.samples.export(byte_stream, format='ogg',
+                        codec='libopus', bitrate='160k')
+
     clip_model = _ClipModel(
         id=clip.id,
         name=clip.name,
         length=clip.length,
         volume=clip.volume,
-        samples=clip.samples.raw_data
+        samples=byte_stream.getvalue()
     )
     session.add(clip_model)
     session.commit()
