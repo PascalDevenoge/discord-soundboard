@@ -11,6 +11,7 @@ from flask import Flask
 from flask import request
 from flask import Response
 from flask_sqlalchemy import SQLAlchemy
+from markupsafe import escape
 import pydub
 from pydub.effects import normalize
 from pydub.silence import detect_leading_silence
@@ -57,7 +58,7 @@ def create_app():
     @app.route('/play/<uuid:id>/<float(signed=True, max=30.0):volume>')
     def play_clip(id: uuid.UUID, volume: float):
         if not data_access.clip_exists(db.session, id):
-            return Response(f'Track {id} does not exist', 404)
+            return Response(f'Track {escape(str(id))} does not exist', 404)
 
         event_manager.signal(server_event.PlayClipEvent(id, volume))
         return Response('', 204)
@@ -118,9 +119,9 @@ def create_app():
             return Response(f'ClipStillUsedError {e.sequence_id}', 409)
 
         if not track_deleted:
-            return Response(f'Track {str(id)} does not exist', 404)
+            return Response(f'Track {escape(str(id))} does not exist', 404)
         event_manager.signal(server_event.ClipDeletedEvent(id))
-        return Response(f'Track {str(id)} deleted', 204)
+        return Response(f'Track {escape(str(id))} deleted', 204)
 
     @app.route('/rename/<uuid:id>/<string:new_name>', methods=['POST'])
     def rename_clip(id: uuid.UUID, new_name: str):
@@ -128,9 +129,9 @@ def create_app():
         clip_info.name = new_name
         clip_renamed = data_access.update_clip_info(db.session, clip_info)
         if not clip_renamed:
-            return Response(f'Track {str(id)} does not exist', 404)
+            return Response(f'Track {escape(str(id))} does not exist', 404)
         event_manager.signal(server_event.ClipRenamedEvent(id, new_name))
-        return Response(f'Track {str(id)} renamed to {new_name}', 204)
+        return Response(f'Track {escape(str(id))} renamed to {new_name}', 204)
 
     def format_event(event_name: str, payload: dict[str, Any]):
         return f'event: {event_name}\ndata: {json.dumps(payload)}\nretry: 5000\n\n'
@@ -235,15 +236,15 @@ def create_app():
     def delete_sequence(id: int):
         deleted = data_access.delete_sequence(db.session, id)
         if not deleted:
-            return Response(f'Sequence {id} does not exist', 404)
+            return Response(f'Sequence {escape(str(id))} does not exist', 404)
         else:
             event_manager.signal(server_event.SequenceDeletedEvent(id))
-            return Response(f'Sequence {id} deleted', 204)
+            return Response(f'Sequence {escape(str(id))} deleted', 204)
 
     @app.route('/sequences/play/<int:id>')
     def play_sequence(id: int):
         if not data_access.sequence_exists(db.session, id):
-            return Response(f'Sequence {id} does not exist', 404)
+            return Response(f'Sequence {escape(str(id))} does not exist', 404)
 
         event_manager.signal(server_event.PlaySequenceEvent(id))
         return Response('', 204)
