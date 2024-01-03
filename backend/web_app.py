@@ -6,6 +6,7 @@ import secrets
 from typing import Any
 import uuid
 
+import api
 import data_access
 from flask import Flask
 from flask import request
@@ -37,6 +38,8 @@ def create_app():
         def foreign_key_pragma_on_connect_callback(connection, _):
             connection.execute('pragma foreign_keys=ON')
         db.create_all()
+
+    app.register_blueprint(api.get_bp(db))
 
     event_manager = server_event.get_event_manager()
 

@@ -34,7 +34,7 @@ export default {
 function loadFavorites () {
   const storedData = localStorage.getItem('favorites')
   if (storedData == null) {
-    localStorage.setItem('favorites', [])
+    localStorage.setItem('favorites', '[]')
     return
   }
   const favoriteIds = JSON.parse(storedData)
