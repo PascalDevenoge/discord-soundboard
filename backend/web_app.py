@@ -16,6 +16,7 @@ import pydub
 from pydub.effects import normalize
 from pydub.silence import detect_leading_silence
 import server_event
+from werkzeug.exceptions import RequestEntityTooLarge
 
 log = logging.getLogger('Web API')
 
@@ -24,6 +25,7 @@ def create_app():
     app = Flask('Soundboard Web API',
                 static_folder="../frontend/dist", static_url_path="")
     app.secret_key = secrets.token_bytes(16)
+    app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
 
     app.logger.addHandler(log)
 
@@ -46,37 +48,66 @@ def create_app():
 
         return dict(debug=print_debug_message)
 
+    @app.errorhandler(RequestEntityTooLarge)
+    def to_large_request_error_handler(error):
+        if request.base_url.endswith('/upload'):
+            return Response(413, 'The uploaded clip file exceeds the maximum allowed size')
+        else:
+            return Response(413, 'Content too large')
+
+    @app.after_request
+    def disable_caching(response: Response) -> Response:
+        response.cache_control.no_cache = True
+        return response
+
     @app.route('/')
     def root_page():
         return app.send_static_file('index.html')
 
     @app.route('/tracks')
     def get_tracks():
-        track_infos = data_access.get_all_clip_infos(db.session)
-        return [{'id': track_info.id, 'name': track_info.name, 'length': track_info.length, 'volume': track_info.volume} for track_info in track_infos]
+        return [
+            {'id': clip_info.id, 'name': clip_info.name,
+                'length': clip_info.length, 'volume': clip_info.volume}
+            for clip_info in data_access.get_all_clip_infos(db.session)
+        ]
 
-    @app.route('/play/<uuid:id>/<float(signed=True, max=30.0):volume>')
-    def play_clip(id: uuid.UUID, volume: float):
-        if not data_access.clip_exists(db.session, id):
-            return Response(f'Track {escape(str(id))} does not exist', 404)
+    @app.route('/play')
+    def play_clip():
+        try:
+            clip_id = uuid.UUID(escape(request.args.get('id')))
+            volume = float(escape(request.args.get('volume')))
+        except:
+            return Response('Malformed request', 400)
 
-        event_manager.signal(server_event.PlayClipEvent(id, volume))
-        return Response('', 204)
+        if volume < -120 or volume > 30:
+            return Response('Volume out of range', 403)
+
+        if not data_access.clip_exists(db.session, clip_id):
+            return Response(f'Clip {clip_id} does not exist', 404)
+
+        event_manager.signal(server_event.PlayClipEvent(clip_id, volume))
+        return Response(f'Clip {clip_id} played', 204)
 
     @app.route('/play/all')
     def play_all_clips():
         event_manager.signal(server_event.PlayAllClipsEvent())
-        return Response('', 204)
+        return Response('All clips played', 204)
+
+    @app.route('/stop')
+    def stop_clip():
+        try:
+            clip_id = uuid.UUID(escape(request.args.get('id')))
+        except:
+            return Response('Malformed request', 400)
+
+        event_manager.signal(server_event.StopClipEvent(clip_id))
+        return Response(f'Clip {clip_id} stopped')
 
     @app.route('/stop/all')
     def stop_playback():
         event_manager.signal(server_event.StopAllEvent())
-        return Response('', 204)
-
-    @app.route('/stop/<uuid:id>')
-    def stop_clip(id: uuid.UUID):
-        event_manager.signal(server_event.StopClipEvent(id))
-        return Response('', 204)
+        return Response('All clips stopped', 204)
 
     @app.route('/upload', methods=['POST'])
     def upload_clip():
@@ -111,27 +142,43 @@ def create_app():
             id, name, ceil(normalized.duration_seconds * 1000)))
         return Response('', 204)
 
-    @app.route('/delete/<uuid:id>', methods=['POST'])
-    def delete_clip(id: uuid.UUID):
+    @app.route('/delete', methods=['POST'])
+    def delete_clip():
         try:
-            track_deleted = data_access.delete_clip(db.session, id)
+            clip_id = uuid.UUID(escape(request.args.get('id')))
+        except:
+            return Response('Malformed request', 400)
+
+        try:
+            deleted = data_access.delete_clip(db.session, clip_id)
         except data_access.ClipUsedException as e:
-            return Response(f'ClipStillUsedError {e.sequence_id}', 409)
+            return Response(f'Clip still in use in sequence {e.sequence_id}', 409)
 
-        if not track_deleted:
-            return Response(f'Track {escape(str(id))} does not exist', 404)
-        event_manager.signal(server_event.ClipDeletedEvent(id))
-        return Response(f'Track {escape(str(id))} deleted', 204)
+        if not deleted:
+            return Response(f'Track {clip_id} does not exist', 404)
 
-    @app.route('/rename/<uuid:id>/<string:new_name>', methods=['POST'])
-    def rename_clip(id: uuid.UUID, new_name: str):
-        clip_info = data_access.get_clip_info(db.session, id)
+        event_manager.signal(server_event.ClipDeletedEvent(clip_id))
+        return Response(f'Track {clip_id} deleted', 204)
+
+    @app.route('/rename', methods=['POST'])
+    def rename_clip():
+        try:
+            clip_id = uuid.UUID(escape(request.args.get('id')))
+            new_name = escape(request.get('new_name'))
+        except:
+            return Response('Malformed request', 400)
+
+        clip_info = data_access.get_clip_info(db.session, clip_id)
+        if clip_info is None:
+            return Response(f'Clip {clip_id} does not exist', 404)
+
         clip_info.name = new_name
-        clip_renamed = data_access.update_clip_info(db.session, clip_info)
-        if not clip_renamed:
-            return Response(f'Track {escape(str(id))} does not exist', 404)
-        event_manager.signal(server_event.ClipRenamedEvent(id, new_name))
-        return Response(f'Track {escape(str(id))} renamed to {escape(new_name)}', 204)
+        renamed = data_access.update_clip_info(db.session, clip_info)
+        if not renamed:
+            return Response(f'Clip {clip_id} does not exist', 404)
+
+        event_manager.signal(server_event.ClipRenamedEvent(clip_id, new_name))
+        return Response(f'Clip {clip_id} renamed to {new_name}', 204)
 
     def format_event(event_name: str, payload: dict[str, Any]):
         return f'event: {event_name}\ndata: {json.dumps(payload)}\nretry: 5000\n\n'

@@ -18,11 +18,15 @@ function favoritesHandler () {
 }
 
 function deleteHandler () {
-  fetch('/delete/' + props.trackId, { method: 'POST' })
+  fetch('/delete?' + new URLSearchParams({
+    id: props.trackId
+  }), { method: 'POST' })
 }
 
 function stopHandler () {
-  fetch('/stop/' + props.trackId)
+  fetch('/stop?' + new URLSearchParams({
+    id: props.trackId
+  }))
 }
 
 const eventEmit = defineEmits('openSettings')

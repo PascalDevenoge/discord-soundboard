@@ -17,7 +17,10 @@ const track = TrackRepository.getTrack(props.trackId)
 const active = computed(() => track.active)
 
 function play () {
-  fetch(`/play/${props.trackId}/0.0`)
+  fetch('/play?' + new URLSearchParams({
+    id: props.trackId,
+    volume: 0.0
+  }))
 }
 </script>
 
