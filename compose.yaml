@@ -2,7 +2,7 @@ version: "3"
 services:
   bot:
     container_name: discord-soundboard-bot
-    image: ghcr.io/pascaldevenoge/discord-soundboard:latest
+    image: raspberry-pi-4:3000/pascaldevenoge/discord-soundboard:latest
     build:
       context: .
       dockerfile: Dockerfile
