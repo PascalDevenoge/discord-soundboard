@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from io import BytesIO
 import uuid
 
+from dataclass_wizard import JSONWizard
 from pydub import AudioSegment
 from sqlalchemy import Column
 from sqlalchemy import create_engine
@@ -18,7 +19,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session
 
 
-class ClipUsedException(Exception):
+class ClipStillUsedException(Exception):
     def __init__(self, sequence_id) -> None:
         super().__init__(f'Clip still used in sequence {sequence_id}')
         self.sequence_id = sequence_id
@@ -111,7 +112,7 @@ class _GlobalSettingsModel(_Base):
 
 
 @dataclass
-class Clip():
+class Clip(JSONWizard):
     id: uuid.UUID
     name: str
     length: int
@@ -120,7 +121,7 @@ class Clip():
 
 
 @dataclass
-class ClipInfo():
+class ClipInfo(JSONWizard):
     id: uuid.UUID
     name: str
     length: int
@@ -128,7 +129,7 @@ class ClipInfo():
 
 
 @dataclass
-class SequenceStep():
+class SequenceStep(JSONWizard):
     position: int
     delay: int
     volume: float
@@ -136,7 +137,7 @@ class SequenceStep():
 
 
 @dataclass
-class Sequence():
+class Sequence(JSONWizard):
     id: uuid.UUID
     name: str
     length: int
@@ -144,7 +145,7 @@ class Sequence():
 
 
 @dataclass
-class GlobalSettings():
+class GlobalSettings(JSONWizard):
     play_all_count: int
     play_join_clip: bool
     join_clip_is_sequence: bool
@@ -221,6 +222,18 @@ def get_all_clip_infos(session: Session) -> list[ClipInfo]:
     return clip_infos
 
 
+def set_clip_info(session: Session, id: uuid.UUID, info: ClipInfo) -> bool:
+    clip = session.scalar(select(_ClipModel).where(_ClipModel.id) == id)
+    if clip is None:
+        return False
+
+    clip.name = info.name
+    clip.volume = info.volume
+
+    session.commit()
+    return True
+
+
 def save_clip(session: Session, clip: Clip) -> None:
     if session.query(exists(_ClipModel).where(_ClipModel.name == clip.name)).scalar():
         raise NameDuplicateException()
@@ -253,7 +266,7 @@ def delete_clip(session: Session, id: uuid.UUID) -> None:
     still_used = session.query(exists(_SequenceStepModel).where(
         _SequenceStepModel.clip == clip_to_delete)).scalar()
     if still_used:
-        raise ClipUsedException(id)
+        raise ClipStillUsedException(id)
 
     session.delete(clip_to_delete)
     session.commit()

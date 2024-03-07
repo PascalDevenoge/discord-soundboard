@@ -39,9 +39,9 @@ def create_app():
             connection.execute('pragma foreign_keys=ON')
         db.create_all()
 
-    app.register_blueprint(api.get_bp(db))
-
     event_manager = server_event.get_event_manager()
+
+    app.register_blueprint(api.get_bp(db, event_manager))
 
     @app.context_processor
     def utilities():
@@ -154,7 +154,7 @@ def create_app():
 
         try:
             deleted = data_access.delete_clip(db.session, clip_id)
-        except data_access.ClipUsedException as e:
+        except data_access.ClipStillUsedException as e:
             return Response(f'Clip still in use in sequence {e.sequence_id}', 409)
 
         if not deleted:
@@ -180,7 +180,7 @@ def create_app():
         if not renamed:
             return Response(f'Clip {clip_id} does not exist', 404)
 
-        event_manager.signal(server_event.ClipRenamedEvent(clip_id, new_name))
+        event_manager.signal(server_event.ClipUpdatedEvent(clip_id, new_name))
         return Response(f'Clip {clip_id} renamed to {new_name}', 204)
 
     def format_event(event_name: str, payload: dict[str, Any]):
@@ -208,7 +208,7 @@ def create_app():
                                 yield format_event('clip-uploaded', {"id": str(event.id), "name": event.name, "length": event.length})
                             case server_event.EventType.CLIP_DELETED:
                                 yield format_event('clip-deleted', {"id": str(event.id)})
-                            case server_event.EventType.CLIP_RENAMED:
+                            case server_event.EventType.CLIP_UPDATED:
                                 yield format_event('clip-renamed', {"id": str(event.id), "new_name": event.new_name})
                             case server_event.EventType.PLAY_SEQUENCE:
                                 yield format_event('sequence-played', {'id': event.id})

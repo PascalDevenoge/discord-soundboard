@@ -6,3 +6,5 @@ gunicorn[eventlet]  == 21.2.0
 SQLAlchemy          == 2.0.23
 alembic             == 1.13.1
 pre-commit
+jsonschema          == 4.20.0
+dataclass-wizard    == 0.22.2
