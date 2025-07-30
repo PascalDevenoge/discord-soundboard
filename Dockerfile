@@ -4,8 +4,7 @@
 # If you need more help, visit the Dockerfile reference guide at
 # https://docs.docker.com/go/dockerfile-reference/
 
-ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION} as base
+FROM python:3.12-bookworm as base
 
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -34,7 +33,7 @@ RUN addgroup \
     --gid "${GID}" \
     appuser
 
-RUN apt update && apt install -y libopus0 ffmpeg sqlite3 && mkdir discord-soundboard && chmod u+rw discord-soundboard && chown ${UID}:${GID} discord-soundboard
+RUN apt update && apt install -y libffi-dev libopus0 ffmpeg sqlite3 && mkdir discord-soundboard && chmod u+rw discord-soundboard && chown ${UID}:${GID} discord-soundboard
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
